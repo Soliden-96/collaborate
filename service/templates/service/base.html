@@ -1,0 +1,11 @@
+{% extends "service/layout.html" %}
+
+{% load django_vite %}
+
+{% block script %}
+    <script type="module" src="http://localhost:5173/main.jsx"></script>
+{% endblock %}
+
+{% block body %}
+    <div id="root"></div>
+{% endblock %}
