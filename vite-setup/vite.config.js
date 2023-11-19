@@ -4,14 +4,16 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base:"static",
+  base:"/static/",
+  server: {
+    origin: 'http://127.0.0.1:5173',
+  },
   build:{
     manifest:true,
-    outDir:'./vite-setup/src/dist',
+    outDir:'./src/dist',
     rollupOptions:{
-      input:{
-        base:'./src/main.jsx'
+      input:'./src/main.jsx',
       },
     },
   },
-})
+)
