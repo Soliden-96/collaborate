@@ -3,7 +3,7 @@
 {% load django_vite %}
 
 {% block script %}
-    <script type="module" src="http://localhost:5173/main.jsx"></script>
+    {% vite_asset '/vite-setup/src/main.jsx' %}
 {% endblock %}
 
 {% block body %}
