@@ -117,7 +117,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATICFILES_DIRS = [
     BASE_DIR / "vite-setup/src/dist"
 ]
@@ -131,7 +131,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Django-Vite configs
 DJANGO_VITE_DEV_MODE = True
 DJANGO_VITE_DEV_SERVER_PORT = 5173
-DJANGO_VITE_ASSETS_PATH = BASE_DIR / "vite-setup/src/dist"
+DJANGO_VITE_ASSETS_PATH = BASE_DIR / "src/dist"
 
 
 
