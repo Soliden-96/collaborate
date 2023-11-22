@@ -5,16 +5,13 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        {% vite_hmr_client %}
         <title>Proximity Service App</title>
-        {% block script %}
-
-        {% endblock %}
+        {% vite_hmr_client %}
+        
+        {% vite_asset '/src/main.jsx' %}
         {% vite_react_refresh %}
     </head>
     <body>
-        {% block body %}
-
-        {% endblock %}
+        <div id="root"></div>
     </body>
 </html>
