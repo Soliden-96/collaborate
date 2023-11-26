@@ -119,7 +119,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [
-    BASE_DIR / "vite-setup/src/dist"
+    BASE_DIR / "static/src/dist"
 ]
 
 
@@ -131,7 +131,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Django-Vite configs
 DJANGO_VITE_DEV_MODE = True
 DJANGO_VITE_DEV_SERVER_PORT = 5173
-DJANGO_VITE_ASSETS_PATH = BASE_DIR / "src/dist"
+DJANGO_VITE_ASSETS_PATH = BASE_DIR / "static/src/"
 
 
 
