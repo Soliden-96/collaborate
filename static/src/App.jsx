@@ -7,7 +7,7 @@ export function App() {
   return (
     <>
       <h3>Let's gooo</h3>
-      <div>This is my app now </div>
+      <div>This is my dockerized app now </div>
     </>
   )
 }

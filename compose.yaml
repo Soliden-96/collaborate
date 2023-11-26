@@ -1,0 +1,14 @@
+services:
+    db:
+      image: postgres
+      environment:
+        POSTGRES_DB: proximity_app_db
+        POSTGRES_USER: proximity_dengi
+        POSTGRES_PASSWORD: bengidengi
+
+    web:
+      build: .
+      volumes:
+          - .:/usr/src/app
+      ports:
+          - "8000:8000"
