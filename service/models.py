@@ -21,4 +21,14 @@ class ProjectMembership(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     is_admin = models.BooleanField(default=False)
+
+
+class Invitation(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_invitations")
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_invitations")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    is_accepted = models.BooleanField(default=False)
+
+
+
     

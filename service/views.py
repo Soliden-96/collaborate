@@ -62,6 +62,7 @@ def logout_view(request):
 
 @login_required
 def profile(request):
+
     return render(request,"service/profile.html")
 
 
@@ -85,4 +86,45 @@ def create_project(request):
 
 def project(request,id):
     project = Project.objects.get(id=id)
-    return render(request,"service/project",{"project":project})
+    return render(request,"service/project.html",{"project":project})
+
+
+def send_invitation(request,projectId):
+    if request.method != "POST":
+        return JsonResponse({"message":"Invalid request"},status=400)
+    
+    if not ProjectMembership.objects.filter(user=request.user, project_id=projectId, is_admin=True).exists():
+        return JsonResponse({"message":"You have no permission to make invitations for this project"},status=400)
+    
+    # Frontend is Todo
+    data = json.loads(request.body)
+    invited_username = data.get('invited_username')
+
+    receiver = User.objects.filter(username=invited_username).first()
+    if receiver is None:
+        return JsonResponse({"message":"this user doesn't exist"},status=404)
+    
+    if ProjectMembership.objects.filter(user=receiver).exists():
+        return JsonResponse({"message":f"{invited_username} is already part of this project"})
+
+    invitation = Invitation(sender=request.user, receiver=receiver, project_id=projectId)
+    invitation.save()
+    return JsonResponse({"Success":True, "message":f"{invited_username} invited to join the project"},status=200)
+
+
+def invitation_accepted(request,invitation_id):
+    if request.method != "POST":
+        return JsonResponse({"message":"Invalid request"})
+    
+    invitation = Invitation.objects.filter(id=invitation_id, receiver=request.user, is_accepted=False)
+    if invitation is None:
+        return JsonResponse({"message":"No such invitation"},status=400)
+    
+    invitation.is_accepted = True
+    invitation.save()
+
+    new_membership = ProjectMembership(user=request.user, project=invitation.project)
+    new_membership.save()
+
+    return JsonResponse({"success":True, "message":f"You accepted to work on project {new_membership.project.title}"},status=200)
+
