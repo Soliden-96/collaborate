@@ -1,0 +1,28 @@
+{% load django_vite %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Collaborate App</title>
+    </head>
+    <body>
+        <h3>You are logged in as {{ request.user.username }}</h3>
+        <div id="root"></div>
+        <div>
+            {% if message %} {{ message }} {% endif %}
+            <form action="{% url 'create_project' %}" method="POST">
+                {% csrf_token %}
+                <input type="text" name="title" placeholder="Project title" />
+                <button type="submit">Create Project</button>
+            </form>
+        </div>
+        <div>
+            <form action="/logout">
+                <button type="submit">Logout</button>
+            </form>
+        </div>
+        
+    </body>
+</html>
