@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
@@ -62,8 +62,10 @@ def logout_view(request):
 
 @login_required
 def profile(request):
-
-    return render(request,"service/profile.html")
+    invitations = Invitation.objects.filter(receiver=request.user)
+    project_memberships = ProjectMembership.objects.filter(user=request.user)
+    projects = [membership.project for membership in project_memberships]
+    return render(request, "service/profile.html", {"invitations": invitations, "projects": projects})
 
 
 @login_required
@@ -88,7 +90,7 @@ def project(request,id):
     project = Project.objects.get(id=id)
     return render(request,"service/project.html",{"project":project})
 
-
+@login_required
 def send_invitation(request,projectId):
     if request.method != "POST":
         return JsonResponse({"message":"Invalid request"},status=400)
@@ -116,15 +118,20 @@ def invitation_accepted(request,invitation_id):
     if request.method != "POST":
         return JsonResponse({"message":"Invalid request"})
     
-    invitation = Invitation.objects.filter(id=invitation_id, receiver=request.user, is_accepted=False)
-    if invitation is None:
-        return JsonResponse({"message":"No such invitation"},status=400)
-    
+    invitation = get_object_or_404(Invitation, id=invitation_id, receiver=request.user, is_accepted=False)
     invitation.is_accepted = True
     invitation.save()
 
     new_membership = ProjectMembership(user=request.user, project=invitation.project)
     new_membership.save()
 
-    return JsonResponse({"success":True, "message":f"You accepted to work on project {new_membership.project.title}"},status=200)
+    project = invitation.project
+
+    return HttpResponseRedirect(reverse("project",args=[project.id]))
+
+def invitation_denied(request,invitation_id):
+    invitation = get_object_or_404(Invitation, id=invitation_id, receiver=request.user)
+    invitation.delete()
+
+    return HttpResponseRedirect(reverse("profile"))
 

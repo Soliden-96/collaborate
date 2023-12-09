@@ -6,9 +6,20 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Collaborate App</title>
+        <script type="module" src="http://localhost:5173/@vite/client"></script> 
+        <script type="module">
+            import RefreshRuntime from 'http://localhost:5173/@react-refresh'
+            RefreshRuntime.injectIntoGlobalHook(window)
+            window.$RefreshReg$ = () => {}
+            window.$RefreshSig$ = () => (type) => type
+            window.__vite_plugin_react_preamble_installed__ = true
+          </script>
     </head>
     <body>
+        <div id="project-info" data-project_id="{{ project.id }}">
         <h3>You are logged in as {{ request.user.username }} on {{ project.title }}</h3>
-              
+        </div>
+        <div id="root"></div>
+        <script type="module" src="http://localhost:5173/static/src/project-template.jsx"></script>    
     </body>
 </html>

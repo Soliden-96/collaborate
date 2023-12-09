@@ -8,8 +8,7 @@
         <title>Collaborate App</title>
     </head>
     <body>
-        <h3>You are logged in as {{ request.user.username }}</h3>
-        <div id="root"></div>
+        <h3>You are logged in as {{ request.user.username }}</h3>       
         <div>
             {% if message %} {{ message }} {% endif %}
             <form action="{% url 'create_project' %}" method="POST">
@@ -18,11 +17,31 @@
                 <button type="submit">Create Project</button>
             </form>
         </div>
+        <h3>Projects</h3>
+        {% for project in projects %}
+        <div>
+            <a href="{% url 'project' project.id %}">{{ project.title }}</a>
+        </div>
+        {% endfor %}
+        <h3>Invitations</h3>
+        {% for invitation in invitations %}
+        <div>
+            {{ invitation.sender }} invited you to participate on project {{ invitation.project }}
+            <form action="{% url 'invitation_accepted' invitation.id %}" method="POST">
+                {% csrf_token %}
+                <button type="submit">Accept</button>
+            </form>
+            <form action="{% url 'invitation_denied' invitation.id %}" method="POST">
+                {% csrf_token %}
+                <button type="submit">Deny</button>
+            </form>
+        </div>
+        {% endfor %}
         <div>
             <form action="/logout">
+                {% csrf_token %}
                 <button type="submit">Logout</button>
             </form>
         </div>
-        
     </body>
 </html>

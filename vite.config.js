@@ -15,6 +15,7 @@ export default defineConfig({
     rollupOptions:{
       input:{
         main:'./static/src/main.jsx',
+        project:'./static/src/project-template.jsx',
       }
       },
     },
