@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 import json
 
 from .models import *
@@ -15,7 +16,8 @@ from .models import *
 def index(request):
     return render(request,'service/index.html')
 
-
+# To fix, i don't want it csrf exempt but it's not reading the cookies if go to localhost without click
+@csrf_exempt
 def login_view(request):
     if request.method == "POST":
         data = json.loads(request.body)
@@ -90,6 +92,7 @@ def project(request,id):
     project = Project.objects.get(id=id)
     return render(request,"service/project.html",{"project":project})
 
+
 @login_required
 def send_invitation(request,projectId):
     if request.method != "POST":
@@ -98,7 +101,6 @@ def send_invitation(request,projectId):
     if not ProjectMembership.objects.filter(user=request.user, project_id=projectId, is_admin=True).exists():
         return JsonResponse({"message":"You have no permission to make invitations for this project"},status=400)
     
-    # Frontend is Todo
     data = json.loads(request.body)
     invited_username = data.get('invited_username')
 
@@ -113,7 +115,7 @@ def send_invitation(request,projectId):
     invitation.save()
     return JsonResponse({"Success":True, "message":f"{invited_username} invited to join the project"},status=200)
 
-
+# When accepting invitation invitation doesn't disappear
 def invitation_accepted(request,invitation_id):
     if request.method != "POST":
         return JsonResponse({"message":"Invalid request"})

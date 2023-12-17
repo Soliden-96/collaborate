@@ -1,13 +1,14 @@
-import  React ,{ useState } from 'react'
+import  React ,{ useEffect, useState, useRef } from 'react'
 import './Project.css'
 import Cookies from 'js-cookie';
 
-const projectId = parseInt(document.querySelector('#project-info').dataset.project_id);
+const projectId = parseInt(document.querySelector('#project-info').dataset.project);
 
 export default function Project() {
     return (
         <>
         <Invite />
+        <Chat projectId={projectId}/>
         </>
     )
 }
@@ -50,5 +51,54 @@ function Invite() {
             <button type="submit">Invite</button>
         </form>
         </>
+    )
+}
+
+
+function Chat({projectId}) {
+    const [chatLog,setChatLog] = useState([]);
+    const [messageInput,setMessageInput] = useState('');
+    const chatSocketRef = useRef(null);
+
+    useEffect(() => {
+
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host 
+            +'/ws/chat/'
+            + projectId
+            + '/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            // Functional version is better for asynchronous environment, instead of  
+            // updating like setChatLog(nextChatLog)
+            setChatLog(chatLog => [...chatLog, data.message + '\n'].join(''));
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat closed unexpectedly');
+        };
+
+        chatSocketRef.current = chatSocket;
+
+    },[projectId]);
+
+    function handleSendMessage() {
+        chatSocketRef.current.send(JSON.stringify({
+            'message':messageInput
+        }));
+        setMessageInput('');
+    }
+
+    return (
+        <div>
+            <textarea value={chatLog} readOnly />
+            <br />
+            <input type="text" value={messageInput} onChange={(e) => setMessageInput(e.target.value)} />
+            <br />
+            <button onClick={handleSendMessage}>Send</button>
+        </div>
     )
 }

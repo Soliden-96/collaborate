@@ -6,9 +6,18 @@ services:
         POSTGRES_USER: collaborate_dengi
         POSTGRES_PASSWORD: bengidengi
 
+    redis:
+      image: redis:7
+      ports:
+          - "6379:6379"
+
     web:
       build: .
       volumes:
           - .:/usr/src/app
       ports:
           - "8000:8000"
+      depends_on:
+          - db    # Ensures web service starting when db ready
+
+    
