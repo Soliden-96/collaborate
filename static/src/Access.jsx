@@ -65,7 +65,7 @@ function Login() {
     .then(response => response.json())
     .then(result => {
       if (result.success) {
-        window.location.href = "/profile";
+        window.location.href = "/";
       } else {
         setMessage(result.message);
       }

@@ -41,7 +41,7 @@ def login_view(request):
         else:
             return JsonResponse({"message":"Invalid credentials"},status=400)
         
-    return render(request,'service/acces.html')
+    return render(request,'service/access.html')
 
 
 def register_view(request):
