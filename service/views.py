@@ -15,10 +15,19 @@ from .models import *
 # You still get to login if you are logged in ... to fix
 # Maybe move profile into index if logged in, if not go to login 
 def index(request):
-    return render(request,'service/index.html')
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+
+    invitations = Invitation.objects.filter(receiver=request.user)
+    project_memberships = ProjectMembership.objects.filter(user=request.user)
+    projects = [membership.project for membership in project_memberships]
+    
+    return render(request, "service/index.html", {"invitations": invitations, "projects": projects})
+
+    
 
 # To fix, i don't want it csrf exempt but it's not reading the cookies if go to localhost without click
-@csrf_exempt
+
 def login_view(request):
     if request.method == "POST":
         data = json.loads(request.body)
@@ -32,7 +41,7 @@ def login_view(request):
         else:
             return JsonResponse({"message":"Invalid credentials"},status=400)
         
-    return HttpResponseRedirect(reverse("index"))
+    return render(request,'service/acces.html')
 
 
 def register_view(request):
@@ -55,12 +64,12 @@ def register_view(request):
         # Change to directly login
         return JsonResponse({"message":"Successfully registered, now you can login"})
 
-    return HttpResponseRedirect(reverse("index"))
+    return render(request,'service/access.html')
 
 
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect(reverse("index"))
+    return HttpResponseRedirect(reverse("login"))
 
 
 @login_required
