@@ -3,18 +3,38 @@ import './Project.css'
 import Cookies from 'js-cookie';
 
 const projectId = parseInt(document.querySelector('#project-info').dataset.project);
+const tools = {
+        'Invite':Invite,
+        'Chat':Chat,
+    }
 
-export default function Project() {
+
+    export default function Project() {
+    const [selectedTool, setSelectedTool] = useState('');
+    const currentTool = tools[selectedTool];
     return (
         <>
-        <Invite />
-        <Chat projectId={projectId}/>
+        <button onClick={() => setSelectedTool('Invite')}>Invite users</button>
+        <button onClick={() => setSelectedTool('Chat')}>Chat</button>
+        <Tool currentTool={currentTool} projectId={projectId} />
         </>
     )
 }
 
+function Tool({currentTool, projectId}) {
+    const CurrentTool = currentTool;
+    if (CurrentTool) {
+        return (
+            <>
+            <CurrentTool projectId={projectId} />
+            </>
+        )
+    } else {
+        <></>
+    }
+}
 
-function Invite() {
+function Invite({projectId}) {
     const [invited,setInvited] = useState('');
     const [message,setMessage] = useState('');
 
@@ -76,12 +96,17 @@ function Chat({projectId}) {
             // updating like setChatLog(nextChatLog)
             setChatLog(chatLog => [...chatLog, data.message + '\n'].join(''));
         };
-
+        
+        //Pros and cons of closing when exiting chat tool to evaluate
         chatSocket.onclose = function(e) {
             console.error('Chat closed unexpectedly');
         };
 
         chatSocketRef.current = chatSocket;
+
+        return () => {
+            chatSocketRef.current.close();
+        };
 
     },[projectId]);
 

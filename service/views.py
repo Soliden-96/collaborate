@@ -12,7 +12,8 @@ from .models import *
 # Create your views here.
 
 
-# You still get to login if you are logged in ... to fix 
+# You still get to login if you are logged in ... to fix
+# Maybe move profile into index if logged in, if not go to login 
 def index(request):
     return render(request,'service/index.html')
 
@@ -109,7 +110,10 @@ def send_invitation(request,projectId):
         return JsonResponse({"message":"this user doesn't exist"},status=404)
     
     if ProjectMembership.objects.filter(user=receiver).exists():
-        return JsonResponse({"message":f"{invited_username} is already part of this project"})
+        return JsonResponse({"message":f"{invited_username} is already part of this project"},status=400)
+
+    if Invitation.objects.filter(sender=request.user, receiver=receiver, project_id=projectId).exists():
+        return JsonResponse({"message":f"You already invited {invited_username} to join the project"},status=400)
 
     invitation = Invitation(sender=request.user, receiver=receiver, project_id=projectId)
     invitation.save()
@@ -120,14 +124,14 @@ def invitation_accepted(request,invitation_id):
     if request.method != "POST":
         return JsonResponse({"message":"Invalid request"})
     
-    invitation = get_object_or_404(Invitation, id=invitation_id, receiver=request.user, is_accepted=False)
-    invitation.is_accepted = True
+    invitation = get_object_or_404(Invitation, id=invitation_id, receiver=request.user)
     invitation.save()
 
     new_membership = ProjectMembership(user=request.user, project=invitation.project)
     new_membership.save()
 
     project = invitation.project
+    invitation.delete()
 
     return HttpResponseRedirect(reverse("project",args=[project.id]))
 
