@@ -10,10 +10,7 @@ import json
 from .models import *
 
 # Create your views here.
-
-
-# You still get to login if you are logged in ... to fix
-# Maybe move profile into index if logged in, if not go to login 
+ 
 def index(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse("login"))
@@ -24,10 +21,8 @@ def index(request):
     
     return render(request, "service/index.html", {"invitations": invitations, "projects": projects})
 
-    
-
-# To fix, i don't want it csrf exempt but it's not reading the cookies if go to localhost without click
-
+# Accessing to the website directly from the urlbar does not set the CSRF Cookie
+@csrf_exempt
 def login_view(request):
     if request.method == "POST":
         data = json.loads(request.body)
@@ -40,7 +35,10 @@ def login_view(request):
             return JsonResponse({"success":True,"message":"Successfully logged in"},status=200)
         else:
             return JsonResponse({"message":"Invalid credentials"},status=400)
-        
+    
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("index"))
+
     return render(request,'service/access.html')
 
 
@@ -60,9 +58,9 @@ def register_view(request):
             user.save()
         except IntegrityError:
             return JsonResponse({"message":"Username already taken"},status=400)
-        
-        # Change to directly login
-        return JsonResponse({"message":"Successfully registered, now you can login"})
+
+        login(request,user)
+        return HttpResponseRedirect(reverse("index"))
 
     return render(request,'service/access.html')
 
@@ -70,14 +68,6 @@ def register_view(request):
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("login"))
-
-
-@login_required
-def profile(request):
-    invitations = Invitation.objects.filter(receiver=request.user)
-    project_memberships = ProjectMembership.objects.filter(user=request.user)
-    projects = [membership.project for membership in project_memberships]
-    return render(request, "service/profile.html", {"invitations": invitations, "projects": projects})
 
 
 @login_required

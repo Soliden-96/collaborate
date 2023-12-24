@@ -92,9 +92,31 @@ function Chat({projectId}) {
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
+
+            if (data.type === 'chat_history') {
+                setChatLog(data.chat_history.map((message,index)=> 
+                <div key={index}>
+                    <div className="sender">{message.sender}</div>
+                    <div className="message">{message.message}</div>
+                    <div className="timestamp">{message.timestamp}</div>
+                    <hr />
+                </div>
+                ).reverse());
+            } else {
             // Functional version is better for asynchronous environment, instead of  
             // updating like setChatLog(nextChatLog)
-            setChatLog(chatLog => [...chatLog, data.message + '\n'].join(''));
+            setChatLog(chatLog => [
+                ...chatLog, 
+                (
+                    <div key={chatLog.length}>
+                        <div className="sender">{data.sender}</div>
+                        <div className="message">{data.message}</div>
+                        <div className="timestamp">{data.timestamp}</div>
+                        <hr />
+                    </div>
+                )]
+            );
+            }
         };
         
         //Pros and cons of closing when exiting chat tool to evaluate
@@ -119,7 +141,7 @@ function Chat({projectId}) {
 
     return (
         <div>
-            <textarea value={chatLog} readOnly />
+            <div className="chat-log">{chatLog}</div>
             <br />
             <input type="text" value={messageInput} onChange={(e) => setMessageInput(e.target.value)} />
             <br />
