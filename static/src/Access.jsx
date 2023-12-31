@@ -127,7 +127,7 @@ function Register() {
       setMessage(result.message);
     })
     .catch(error => {
-      console.log(error);
+      console.log(error); 
       setMessage('An error occurred while processing your request');
     });
   }

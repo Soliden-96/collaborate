@@ -140,3 +140,14 @@ def invitation_denied(request,invitation_id):
 
     return HttpResponseRedirect(reverse("profile"))
 
+
+def get_thread(request,item_id):
+    if request.method != "GET":
+        return JsonResponse({"message":"Invalid request"},status=400)
+    
+    comments = Comment.objects.filter(item=(Item.objects.get(pk=item_id))).order_by("-created_at")
+    if comments is None:
+        return JsonResponse({"message":"This item has no comments"},status=404)
+
+    return JsonResponse({"success":True,"comments":[comment.serialize() for comment in comments]},status=200)
+

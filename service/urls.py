@@ -10,5 +10,6 @@ urlpatterns = [
     path("project/<int:id>", views.project, name="project"),
     path("send_invitation/<int:projectId>", views.send_invitation, name="send_invitation"),
     path("invitation_accepted/<int:invitation_id>", views.invitation_accepted, name="invitation_accepted"),
-    path("invitation_denied/<int:invitation_id>", views.invitation_denied, name="invitation_denied")
+    path("invitation_denied/<int:invitation_id>", views.invitation_denied, name="invitation_denied"),
+    path("get_thread/<int:item_id>", views.get_thread, name="get_thread"),
 ]
