@@ -5,7 +5,7 @@ from asgiref.sync import async_to_sync
 from .models import ChatMessage, Project, Item, Comment
 from django.utils import timezone
 
-# Security Todo
+# SECURITY , ESPECIALLY CSRF TD
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
