@@ -11,6 +11,6 @@ import Project from './Project.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <>
-    <Project />
+    <Project /> 
   </>,
 )
