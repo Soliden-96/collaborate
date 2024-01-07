@@ -6,7 +6,9 @@ from .models import ChatMessage, Project, Item, Comment
 from django.utils import timezone
 
 # SECURITY , ESPECIALLY CSRF TD
+# PROBABLY BETTER TO MAKE EVERYTHING ASYNC TO SCALE
 
+# SHOULD CHECK IF DIFFERENT CHATS DON'T FETCH OTHERS, BUT SHOULD BE OK PER IMPLEMENTATION OF get_chat_history
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
@@ -34,9 +36,11 @@ class ChatConsumer(WebsocketConsumer):
         text_data_json = json.loads(text_data)
         message = text_data_json.get('message')
         timestamp = timezone.now()
+        # Use testuser in case of testing
+        sender = self.scope["user"]
 
         chat_message = ChatMessage(
-            sender=self.scope["user"], 
+            sender=sender, 
             room_id=self.room_name, 
             message=message, 
             timestamp=timestamp
@@ -45,7 +49,7 @@ class ChatConsumer(WebsocketConsumer):
 
         # Send message to room group
         async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name, {"type":"chat.message","message":message,"sender":self.scope["user"].username, "timestamp":timestamp.strftime("%b %d %Y, %I:%M %p")}
+            self.room_group_name, {"type":"chat.message","message":message,"sender":sender.username, "timestamp":timestamp.strftime("%b %d %Y, %I:%M %p")}
         )
 
    # Receive message from room group
@@ -86,7 +90,7 @@ class ItemConsumer(WebsocketConsumer):
                 "created_by":item.created_by.username,
                 "title": item.title,
                 "description": item.description,
-                "timestamp": item.created_at.strftime("%b %d %Y, %I:%M %p"),
+                "timestamp": item.created_at.strftime("%b %d %Y, %I:%M %p"), 
                 "comments": [comment.serialize() for comment in comments],
             })
         

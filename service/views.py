@@ -1,11 +1,12 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect, FileResponse
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import json
+
 
 from .models import *
 
@@ -151,3 +152,50 @@ def get_thread(request,item_id):
 
     return JsonResponse({"success":True,"comments":[comment.serialize() for comment in comments]},status=200)
 
+
+def upload_file(request):
+    if request.method != "POST":
+        return JsonResponse({"message":"Invalid Request"},status=400)
+    
+    uploaded_file = request.FILES.get('uploaded_file','')
+    name = request.POST.get('file_name','')
+    project_id = request.POST.get('project_id','')
+
+    print(uploaded_file)
+    print(name)
+    print(project_id)
+    
+    file_to_store = File(
+        uploaded_by = request.user,
+        # Why does this work instead of using get which returns matching query does not exist
+        project = Project.objects.get(pk=project_id),
+        name = name,
+        file = uploaded_file,
+    )
+    file_to_store.save()
+
+    return JsonResponse({"message":"File stored successfully", "file":file_to_store.serialize()}, status=200)
+
+# Check if users on project is todo
+def get_project_files(request,projectId):
+    if request.method != "GET":
+        return JsonResponse({"message":"Invalid request"},status=400)
+
+    project_files = File.objects.filter(project=(Project.objects.get(pk=projectId)))
+    if not project_files:
+        return JsonResponse({"files":[],},status=200)
+
+    return JsonResponse({"files":[file.serialize() for file in project_files],"any_files":True},status=200)
+
+
+@login_required
+def download_file(request,project_id,file_id):
+    if ProjectMembership.objects.get(user_id=request.user.id, project_id=project_id):
+        # Serve File
+        file_object = get_object_or_404(File, id=file_id)
+        
+        response = FileResponse(open(file_object.file.path,'rb'))
+        response['Content-Disposition'] = f'attachment; filename="{file_object.file.name}"'
+        return response
+
+    return JsonResponse({"message":"You have no permission to download the file"},status=400)

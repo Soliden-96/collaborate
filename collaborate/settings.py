@@ -90,11 +90,15 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'collaborate_app_db',
+        'TEST':{
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': str(BASE_DIR / 'db_test.sqlite3')
+        },
         'USER': 'collaborate_dengi',
         'PASSWORD': 'bengidengi',
         'HOST': 'db',  
         'PORT': '5432',
-    }
+    },
 }
 
 AUTH_USER_MODEL = "service.User"
@@ -143,6 +147,10 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Media
+MEDIA_ROOT = BASE_DIR / 'service/media/'
+MEDIA_URL = '/service/media/'
 
 # Django-Vite configs
 DJANGO_VITE_DEV_MODE = True

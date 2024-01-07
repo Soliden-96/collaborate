@@ -16,7 +16,7 @@ class Project(models.Model):
 class ProjectMembership(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="project_memberships")
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="memberships")
-    is_admin = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False) 
 
 
 class Invitation(models.Model):
@@ -74,6 +74,25 @@ class Comment(models.Model):
             "text": self.text,
             "timestamp": self.created_at.strftime("%b %d %Y, %I:%M %p")
         }
+
+
+class File(models.Model):
+    name = models.CharField(max_length=64)
+    uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="uploaded_files")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="project_files")
+    # NEED TO CHECK FILE STORAGE FOR DEPLOYMENT
+    file = models.FileField(upload_to="filerepo")
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def serialize(self):
+        return {
+            "id":self.pk,
+            "name":self.name,
+            "uploaded_by":self.uploaded_by.username,
+            "file":self.file.url,
+            "timestamp":self.timestamp.strftime("%b %d %Y, %I:%M %p")
+        }
+
 
 
 

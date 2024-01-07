@@ -10,4 +10,5 @@ admin.site.register(ProjectMembership)
 admin.site.register(ChatMessage)
 admin.site.register(Item)
 admin.site.register(Comment)
+admin.site.register(File)
 
