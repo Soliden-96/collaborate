@@ -2,7 +2,7 @@ import json
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 
-from .models import ChatMessage, Project, Item, Comment
+from .models import ChatMessage, Project, Item, Comment, Note
 from django.utils import timezone
 
 # SECURITY , ESPECIALLY CSRF TD
@@ -65,6 +65,63 @@ class ChatConsumer(WebsocketConsumer):
         chat_messages = ChatMessage.objects.filter(room_id=self.room_name).order_by("-timestamp")[:10]
 
         return [message.serialize() for message in chat_messages]
+
+
+class NotesConsumer(WebsocketConsumer):
+    def connect(self):
+        self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
+        self.room_group_name = f"notes_{self.room_name}"
+
+        # Join room group
+        async_to_sync(self.channel_layer.group_add)(
+            self.room_group_name, self.channel_name
+        )
+
+        self.accept()
+
+        
+        # Can't directly serialize query
+        notes = self.get_notes()
+
+        self.send(text_data=json.dumps({"type":"notes","notes":notes})) 
+    
+    def disconnect(self,close_code):
+        #Leave group
+        async_to_sync(self.channel_layer.group_discard)(
+            self.room_group_name, self.channel_name
+        )
+
+    
+        # Receive message from websocket
+    def receive(self,text_data):
+        text_data_json = json.loads(text_data)
+        content = text_data_json.get('content')
+        project = Project.objects.get(pk=self.room_name)
+
+        new_note = Note(
+            created_by = self.scope["user"],
+            content = content,
+            project = project
+        )
+        new_note.save()
+        
+        # Send message to group
+        async_to_sync(self.channel_layer.group_send)(
+            self.room_group_name, {
+                "type":"note.new",
+                "new_note":new_note.serialize()
+            }
+        )
+
+    def note_new(self,event):
+        new_note = event["new_note"]
+
+        self.send(text_data=json.dumps({"type":"new_note","new_note":new_note}))
+
+    def get_notes(self):
+        notes = Note.objects.filter(project=Project.objects.get(pk=self.room_name))
+        return [note.serialize() for note in notes]
+
 
 
 class ItemConsumer(WebsocketConsumer):

@@ -99,7 +99,7 @@ export default function Items({ projectId }) {
   
     function handleNewCommentChange(item_id, value) {
       setNewCommentText({
-        ...newCommentText,
+        ...newCommentText, 
         [item_id]: value,
       });
     };

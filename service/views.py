@@ -187,7 +187,7 @@ def get_project_files(request,projectId):
 
     return JsonResponse({"files":[file.serialize() for file in project_files],"any_files":True},status=200)
 
-
+# For production better check where to store files... github gives warnings also in dev mode
 @login_required
 def download_file(request,project_id,file_id):
     if ProjectMembership.objects.get(user_id=request.user.id, project_id=project_id):

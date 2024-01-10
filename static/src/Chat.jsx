@@ -1,6 +1,6 @@
 import  React ,{ useEffect, useState, useRef } from 'react'
 
-import Cookies from 'js-cookie';
+import Cookies from 'js-cookie'; 
 
 export default function Chat({projectId}) {
     const [chatLog,setChatLog] = useState([]);
