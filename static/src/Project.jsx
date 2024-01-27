@@ -6,21 +6,28 @@ import Chat from './Chat.jsx';
 import Items from './Items.jsx';
 import FileRepo from './Files.jsx';
 import Notes from './Notes.jsx';
+import Whiteboard from './Whiteboard.jsx';
 
 
 const projectId = parseInt(document.querySelector('#project-info').dataset.project);
+const userId = parseInt(document.querySelector('#project-info').dataset.user);
 const tools = {
         'Invite':Invite,
         'Chat':Chat,
         'Items':Items,
         'FileRepo':FileRepo,
         'Notes':Notes,
+        'Whiteboard':Whiteboard
     }
 
 
-export default function Project() {
+export default function Project({}) {
   const [selectedTool, setSelectedTool] = useState('');
   const currentTool = tools[selectedTool];
+  useEffect(() => {
+    console.log('project' + projectId);
+    console.log('user' + userId);
+  })
   return (
       <>
       <button onClick={() => setSelectedTool('Invite')}>Invite users</button>
@@ -28,17 +35,18 @@ export default function Project() {
       <button onClick={() => setSelectedTool('Items')}>Items</button>
       <button onClick={() => setSelectedTool('FileRepo')}>Files</button>
       <button onClick={() => setSelectedTool('Notes')}>Notes</button>
-      <Tool currentTool={currentTool} projectId={projectId} />
+      <button onClick={() => setSelectedTool('Whiteboard')}>Whiteboard</button>
+      <Tool currentTool={currentTool} projectId={projectId} userId={userId} />
       </>
   )
 }
 
-function Tool({currentTool, projectId}) {
+function Tool({currentTool, projectId, userId}) {
     const CurrentTool = currentTool;
     if (CurrentTool) {
         return (
             <>
-            <CurrentTool projectId={projectId} />
+            <CurrentTool projectId={projectId} userId={userId} />
             </>
         )
     } else {

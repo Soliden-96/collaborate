@@ -108,6 +108,12 @@ class Note(models.Model):
             "timestamp":self.timestamp.strftime("%b %d %Y, %I:%M %p")
         }
 
+    
+class ExcalidrawInstance(models.Model):
+    elements = models.JSONField(null=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="excalidraw_instances")
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
 
 

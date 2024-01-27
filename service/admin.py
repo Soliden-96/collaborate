@@ -12,4 +12,5 @@ admin.site.register(Item)
 admin.site.register(Comment)
 admin.site.register(File)
 admin.site.register(Note)
+admin.site.register(ExcalidrawInstance)
 

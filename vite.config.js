@@ -9,6 +9,9 @@ export default defineConfig({
   server: {
     origin: 'http://127.0.0.1:5173',
   },
+  define: {
+    "process.env.IS_PREACT": JSON.stringify("true"),
+  },
   build:{
     manifest:true,
     outDir:'./static/src/dist',

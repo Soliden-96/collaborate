@@ -16,7 +16,7 @@
           </script>
     </head>
     <body>
-        <div id="project-info" data-project="{{ project.id }}">
+        <div id="project-info" data-project="{{ project.id }}" data-user="{{ request.user.id }}">
         <h3>You are logged in as {{ request.user.username }} on {{ project.title }}</h3>
         </div>
         <div id="root"></div>

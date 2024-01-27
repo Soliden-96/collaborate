@@ -84,6 +84,8 @@ def create_project(request):
         membership = ProjectMembership(user=request.user, project=new_project, is_admin=True)
         membership.save()
 
+        
+
         return HttpResponseRedirect(reverse("project",args=[new_project.id]))
 
     return HttpResponseRedirect(reverse("index"))
@@ -199,3 +201,16 @@ def download_file(request,project_id,file_id):
         return response
 
     return JsonResponse({"message":"You have no permission to download the file"},status=400)
+
+
+def get_whiteboard_elements(request,project_id):
+    try:
+        current_project = Project.objects.get(pk=project_id)
+        whiteboard = ExcalidrawInstance.objects.get(project=current_project)
+        elements_list = whiteboard.elements
+        return JsonResponse({"elements":elements_list},status=200)
+    except ExcalidrawInstance.DoesNotExist:
+        new_whiteboard = ExcalidrawInstance(project=current_project)
+        new_whiteboard.save()
+        return JsonResponse({"elements":[]},status=200)
+    

@@ -17,4 +17,5 @@ urlpatterns = [
     path("upload_file", views.upload_file, name="upload_file"),
     path("get_project_files/<int:projectId>", views.get_project_files, name="get_project_files"),
     path("download_file/<int:project_id>/<int:file_id>", views.download_file, name="download_file"),
+    path("get_whiteboard_elements/<int:project_id>", views.get_whiteboard_elements, name="get_whiteboard_elements"),
 ] 
