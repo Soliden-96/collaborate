@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 
 // For real-time files need to use Base64 encoding, and decoding on the backend
 
-export default function FileRepo({projectId}) {
+export default function FileRepo({projectId, currentUsername}) {
     const [files, setFiles] = useState([]);
 
     function addFile(file) {
@@ -17,18 +17,43 @@ export default function FileRepo({projectId}) {
         setFiles(files.reverse());
     }
 
+    function handleDeleteFile(fileId) {
+        const file_id = parseInt(fileId);
+        const csrftoken = Cookies.get('csrftoken');
+
+        fetch('/delete_file',{
+            method:'DELETE',
+            headers:{
+                'Content-Type':'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body:JSON.stringify({
+                file_id: file_id
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                setFiles(files => files.filter(f => f.id !== file_id));
+            }
+        })
+        .catch(error => {
+            console.log(error);
+        })
+    }
+
 
     return (
         <>
         <FileUploadArea projectId={projectId} addFile={addFile} />
         <hr></hr>
-        <Files files={files} loadFiles={loadFiles} projectId={projectId} />
+        <Files files={files} loadFiles={loadFiles} projectId={projectId} currentUsername={currentUsername} handleDeleteFile={handleDeleteFile}/>
         </>
     )
 }
 
 
-function Files({projectId,files,loadFiles}) {
+function Files({projectId, files, loadFiles, currentUsername, handleDeleteFile}) {
     
     // Security to ask for including project id in url
     useEffect(() => {
@@ -44,14 +69,14 @@ function Files({projectId,files,loadFiles}) {
     return (
         <div className="files-div">
             {files.map((file) => (
-                <FileComponent key={file.id} file={file} projectId={projectId} /> 
+                <FileComponent key={file.id} file={file} projectId={projectId} currentUsername={currentUsername} handleDeleteFile={handleDeleteFile} /> 
             )
             )}
         </div>
     )
 }
 
-function FileComponent({file,projectId}) {
+function FileComponent({file, projectId, currentUsername, handleDeleteFile}) {
 
     function handleDownload() {
         fetch(`/download_file/${projectId}/${parseInt(file.id)}`)
@@ -84,6 +109,7 @@ function FileComponent({file,projectId}) {
             <button onClick={handleDownload}>
                 Download File
             </button>
+            {file.uploaded_by === currentUsername && <button onClick={() => handleDeleteFile(file.id)}>Delete File</button>}
             <hr></hr>
         </div>
     );

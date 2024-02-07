@@ -1,7 +1,7 @@
 import  React ,{ useEffect, useState, useRef } from 'react'
 import Cookies from 'js-cookie';
 
-export default function Notes({projectId}) {
+export default function Notes({projectId, currentUsername}) {
     const [newNoteInput, setNewNoteInput] = useState('');
     const [notes, setNotes] = useState([]);
     const notesSocketRef = useRef(null);
@@ -26,6 +26,8 @@ export default function Notes({projectId}) {
                     data.new_note,
                     ...notes
                 ]))
+            } else if (data.type=='delete_note') {
+                setNotes(notes => notes.filter(n => n.id !== data.note_id));
             }
 
         };
@@ -51,16 +53,25 @@ export default function Notes({projectId}) {
 
     function handleNewNote() {
         notesSocketRef.current.send(JSON.stringify({
+            'type': 'new_note',
             'content':newNoteInput,
             'project_id':projectId
         }));
         setNewNoteInput('');
     }
 
+    function handleDeleteNote(noteId) {
+        const note_id = parseInt(noteId);
+        notesSocketRef.current.send(JSON.stringify({
+            'type': 'delete_note',
+            'note_id':note_id
+        }));
+    }
+
     return (
         <>
         <NewNote handleNewNote={handleNewNote} newNoteInput={newNoteInput} onNewNoteChange={handleNewNoteChange} projectId={projectId} />
-        <NotesList notes={notes} />
+        <NotesList notes={notes} handleDeleteNote={handleDeleteNote} currentUsername={currentUsername} />
         </>
     )
 }
@@ -75,7 +86,8 @@ function NewNote({handleNewNote, projectId, newNoteInput, onNewNoteChange}) {
     )
 }
 
-function NotesList({notes}) {
+function NotesList({notes, currentUsername, handleDeleteNote}) { 
+
     return (
         <div className="notes">
             {notes.map((note) => (
@@ -83,6 +95,7 @@ function NotesList({notes}) {
                     <div className="note-creator">{note.created_by}</div>
                     <div className="note-content">{note.content}</div>
                     <div className="note-timestamp">{note.timestamp}</div>
+                    {note.created_by === currentUsername && <button onClick={() => handleDeleteNote(note.id)}>Delete</button>}
                 </div>
             ))}
         </div>

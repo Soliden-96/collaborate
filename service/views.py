@@ -143,7 +143,7 @@ def invitation_denied(request,invitation_id):
 
     return HttpResponseRedirect(reverse("profile"))
 
-
+# ?? Necessary ??
 def get_thread(request,item_id):
     if request.method != "GET":
         return JsonResponse({"message":"Invalid request"},status=400)
@@ -189,6 +189,19 @@ def get_project_files(request,projectId):
 
     return JsonResponse({"files":[file.serialize() for file in project_files],"any_files":True},status=200)
 
+
+@login_required
+def delete_file(request):
+    if request.method != 'DELETE':
+        return JsonResponse({"message":"Invalid request"},status=400)
+
+    data = json.loads(request.body)
+    file_id = data.get('file_id')
+    file_to_delete = File.objects.get(pk=file_id)
+    file_to_delete.delete()
+    
+    return JsonResponse({"success":True}, status=200)
+
 # For production better check where to store files... github gives warnings also in dev mode
 @login_required
 def download_file(request,project_id,file_id):
@@ -213,4 +226,8 @@ def get_whiteboard_elements(request,project_id):
         new_whiteboard = ExcalidrawInstance(project=current_project)
         new_whiteboard.save()
         return JsonResponse({"elements":[]},status=200)
+
+
+
+
     

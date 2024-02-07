@@ -94,28 +94,48 @@ class NotesConsumer(WebsocketConsumer):
         # Receive message from websocket
     def receive(self,text_data):
         text_data_json = json.loads(text_data)
-        content = text_data_json.get('content')
-        project = Project.objects.get(pk=self.room_name)
+        message_type = text_data_json.get('type')
 
-        new_note = Note(
-            created_by = self.scope["user"],
-            content = content,
-            project = project
-        )
-        new_note.save()
-        
-        # Send message to group
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name, {
-                "type":"note.new",
-                "new_note":new_note.serialize()
-            }
-        )
+        if message_type == 'new_note':
+            content = text_data_json.get('content')
+            project = Project.objects.get(pk=self.room_name)
+
+            new_note = Note(
+                created_by = self.scope["user"],
+                content = content,
+                project = project
+            )
+            new_note.save()
+            
+            # Send message to group
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name, {
+                    "type":"note.new",
+                    "new_note":new_note.serialize()
+                }
+            )
+        elif message_type == 'delete_note':
+            note_id = text_data_json.get('note_id')
+            note_to_delete = Note.objects.get(pk=note_id)
+            note_to_delete.delete()
+
+            # Send message to group
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name, {
+                    "type":"note.delete",
+                    "note_id":note_id
+                }
+            )
 
     def note_new(self,event):
         new_note = event["new_note"]
 
         self.send(text_data=json.dumps({"type":"new_note","new_note":new_note}))
+
+    def note_delete(self,event):
+        note_id = event["note_id"]
+        
+        self.send(text_data=json.dumps({"type":"delete_note","note_id":note_id}))
 
     def get_notes(self):
         notes = Note.objects.filter(project=Project.objects.get(pk=self.room_name))
@@ -170,7 +190,7 @@ class ExcalidrawConsumer(WebsocketConsumer):
                 "user_id":user_id
             }
         )
-
+ 
     def update_new(self,event):
         excalidraw_elements = event["excalidraw_elements"]
         user_id = event["user_id"]
@@ -219,40 +239,69 @@ class ItemConsumer(WebsocketConsumer):
     def receive(self,text_data):
         text_data_json = json.loads(text_data)
         message_type = text_data_json.get('type','')
+        action = text_data_json.get('action')
 
         if message_type == "item":
-            item = Item(
-                created_by=self.scope["user"],
-                project=Project.objects.get(pk=self.room_name),
-                title=text_data_json.get('title'),
-                description=text_data_json.get('description'),
-            )
-            item.save()
-            # Send message to room group
-            async_to_sync(self.channel_layer.group_send)(
-                self.room_group_name, {"type":"message.item",
-                "item_id":item.id,
-                "created_by":self.scope["user"].username,
-                "title":text_data_json.get('title'),
-                "description":text_data_json.get('description'),
-                "timestamp":timezone.now().strftime("%b %d %Y, %I:%M %p")}
-            )
+            if action == "create":
+                item = Item(
+                    created_by=self.scope["user"],
+                    project=Project.objects.get(pk=self.room_name),
+                    title=text_data_json.get('title'),
+                    description=text_data_json.get('description'),
+                )
+                item.save()
+                # Send message to room group
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name, {"type":"message.item",
+                    "item_id":item.id,
+                    "created_by":self.scope["user"].username,
+                    "title":text_data_json.get('title'),
+                    "description":text_data_json.get('description'),
+                    "timestamp":timezone.now().strftime("%b %d %Y, %I:%M %p")}
+                )
+            elif action == "delete":
+                item_id = text_data_json.get('item_id')
+                item_to_delete = Item.objects.get(pk=item_id)
+                item_to_delete.delete()
+                # Send message to room group
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name, {
+                        "type":"item.delete",
+                        "item_id":item_id
+                    }
+                )
+
         elif message_type == "comment":
-            comment = Comment(
-                created_by=self.scope["user"],
-                item=Item.objects.get(pk=text_data_json.get('item_id')),
-                text=text_data_json.get('text'),
-            )
-            comment.save()
-            # Send message to room group
-            async_to_sync(self.channel_layer.group_send)(
-                self.room_group_name, {"type":"message.comment",
-                "id":comment.pk,
-                "item_id": comment.item.id,
-                "created_by":self.scope["user"].username,
-                "text":text_data_json.get('text'),
-                "timestamp":timezone.now().strftime("%b %d %Y, %I:%M %p")}
-            )
+            if action == "create":
+                comment = Comment(
+                    created_by=self.scope["user"],
+                    item=Item.objects.get(pk=text_data_json.get('item_id')),
+                    text=text_data_json.get('text'),
+                )
+                comment.save()
+                # Send message to room group
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name, {"type":"message.comment",
+                    "id":comment.pk,
+                    "item_id": comment.item.id,
+                    "created_by":self.scope["user"].username,
+                    "text":text_data_json.get('text'),
+                    "timestamp":timezone.now().strftime("%b %d %Y, %I:%M %p")}
+                )
+            elif action =="delete":
+                item_id = text_data_json.get('item_id')
+                comment_id = text_data_json.get('comment_id')
+                comment_to_delete = Comment.objects.get(pk=comment_id)
+                comment_to_delete.delete()
+                # Send message to room group
+                async_to_sync(self.channel_layer.group_send)(
+                    self.room_group_name, {
+                        "type":"comment.delete",
+                        "item_id":item_id,
+                        "comment_id":comment_id
+                    }
+                )
+
 
     # Receive two types of messages from room group in separated functions    
     def message_item(self,event):
@@ -264,7 +313,7 @@ class ItemConsumer(WebsocketConsumer):
             "timestamp":event.get('timestamp'),
         }
         # Send message to WebSocket
-        self.send(text_data=json.dumps({"type":"item","item":item}))
+        self.send(text_data=json.dumps({"type":"item","action":"create","item":item}))
     
     def message_comment(self,event):
         item_id = event.get('item_id')
@@ -275,7 +324,16 @@ class ItemConsumer(WebsocketConsumer):
             "timestamp":event.get('timestamp'),
         }
         # Send message to WebSocket
-        self.send(text_data=json.dumps({"type":"comment","item_id":item_id, "comment":comment}))
+        self.send(text_data=json.dumps({"type":"comment","action":"create","item_id":item_id, "comment":comment}))
+
+    def item_delete(self,event):
+        item_id = event.get('item_id')
+        self.send(text_data=json.dumps({"type":"item","action":"delete","item_id":item_id}))
+
+    def comment_delete(self,event):
+        item_id = event.get('item_id')
+        comment_id = event.get('comment_id')
+        self.send(text_data=json.dumps({"type":"comment","action":"delete","item_id":item_id,"comment_id":comment_id}))
 
 
 

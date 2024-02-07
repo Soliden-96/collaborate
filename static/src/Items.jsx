@@ -2,7 +2,7 @@ import  React ,{ useEffect, useState, useRef } from 'react'
 
 import Cookies from 'js-cookie';
 
-export default function Items({ projectId }) {
+export default function Items({ projectId, currentUsername }) {
     const [itemTitle, setItemTitle] = useState('');
     const [descriptionInput, setDescriptionInput] = useState('');
     const [items, setItems] = useState([]);
@@ -28,16 +28,23 @@ export default function Items({ projectId }) {
             initialComments[item.item_id] = item.comments.reverse();
           })
           setComments(initialComments);
+        
         } else if (data.type==='item') {
-          setItems((items) => ([
-            data.item,
-            ...items
-          ]));
-          setComments((comments) => ({
-            ...comments,
-            [data.item.item_id] : []
-          }));
+          if (data.action==='create') {
+            setItems((items) => ([
+              data.item,
+              ...items
+            ]));
+            setComments((comments) => ({
+              ...comments,
+              [data.item.item_id] : []
+            }));
+          } else if (data.action==='delete') {
+            setItems((items) => items.filter(i => i.item_id !== data.item_id));
+          }
+
         } else if (data.type==='comment') {
+          if (data.action==='create') {
             console.log('comment incoming');
             setComments((comments) =>({
                 ...comments,
@@ -46,7 +53,12 @@ export default function Items({ projectId }) {
                     ...(comments[data.item_id] || [])
                     ]
             }));
-            
+          } else if (data.action==='delete') {
+            setComments((comments) => ({
+              ...comments,
+              [data.item_id]: comments[data.item_id].filter(c => c.id !== data.comment_id)
+            }));    
+          }
         }
       };
   
@@ -62,6 +74,7 @@ export default function Items({ projectId }) {
       
       itemSocketRef.current.send(JSON.stringify({
           'type':'item',
+          'action':'create',
           'title':itemTitle,
           'description':descriptionInput,
       }));
@@ -80,6 +93,7 @@ export default function Items({ projectId }) {
       // Handle comment creation...
       itemSocketRef.current.send(JSON.stringify({
         'type':'comment',
+        'action':'create',
         'text':text,
         'item_id':item_id
       }));
@@ -103,6 +117,26 @@ export default function Items({ projectId }) {
         [item_id]: value,
       });
     };
+
+    function handleDeleteItem(itemId) {
+      const item_id = parseInt(itemId);
+      itemSocketRef.current.send(JSON.stringify({
+        'type':'item',
+        'action':'delete',
+        'item_id':item_id
+      }));
+    }
+
+    function handleDeleteComment(commentId,itemId) {
+      const comment_id = parseInt(commentId);
+      const item_id = parseInt(itemId);
+      itemSocketRef.current.send(JSON.stringify({
+        'type':'comment',
+        'action':'delete',
+        'item_id': item_id,
+        'comment_id': comment_id
+      }));
+    }
   
     return (
       <>
@@ -130,6 +164,9 @@ export default function Items({ projectId }) {
               onAddComment={addComment}
               onNewCommentChange={handleNewCommentChange}
               isToggled={isToggled}
+              currentUsername={currentUsername}
+              handleDeleteComment={handleDeleteComment}
+              handleDeleteItem={handleDeleteItem}
             />
           ))}
         </div>
@@ -137,7 +174,7 @@ export default function Items({ projectId }) {
     );
   }
   
-  function Item({item,comments,newCommentText,onToggleThread,onAddComment,onNewCommentChange,isToggled}) {
+  function Item({item,comments,newCommentText,onToggleThread,onAddComment,onNewCommentChange,isToggled,currentUsername,handleDeleteItem,handleDeleteComment}) {
     return (
       <>
       <div key={item.item_id}>
@@ -145,12 +182,13 @@ export default function Items({ projectId }) {
         <div className="title">{item.title}</div>
         <div className="description">{item.description}</div>
         <div className="timestamp">{item.timestamp}</div>
+        {item.created_by === currentUsername && <button onClick={() => handleDeleteItem(item.item_id)}>Delete Item</button>}
       </div>
       <button onClick={() => onToggleThread(item.item_id)}>
       {isToggled[item.item_id] ? 'Hide thread' : 'Show thread'}
       </button>
       
-      {isToggled[item.item_id] && <CommentsList comments={comments} />}
+      {isToggled[item.item_id] && <CommentsList comments={comments} currentUsername={currentUsername} itemId={item.item_id} handleDeleteComment={handleDeleteComment} />}
   
       <div className="add_comment">
           <input
@@ -166,8 +204,9 @@ export default function Items({ projectId }) {
   }
   
   
-  function CommentsList({comments}) {
+  function CommentsList({comments, currentUsername, itemId, handleDeleteComment }) {
     
+    // Object.values will return an array from the object keys so that you can map over it
     return (
       <div className="comments">
         {Object.values(comments).map((comment) => (
@@ -175,8 +214,9 @@ export default function Items({ projectId }) {
             <div className="created_by">{comment.created_by}</div>
             <div className="text">{comment.text}</div>
             <div className="timestamp">{comment.timestamp}</div>
+            {comment.created_by === currentUsername && <button onClick={() => handleDeleteComment(comment.id,itemId)}>Delete</button> }
             <hr />
-          </div>
+           </div>
         ))}
       </div>
     );

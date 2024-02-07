@@ -89,7 +89,6 @@ class File(models.Model):
             "id":self.pk,
             "name":self.name,
             "uploaded_by":self.uploaded_by.username,
-            "file":self.file.url,
             "timestamp":self.timestamp.strftime("%b %d %Y, %I:%M %p")
         }
 
