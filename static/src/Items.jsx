@@ -12,9 +12,11 @@ export default function Items({ projectId, currentUsername }) {
     const itemSocketRef = useRef(null);
   
     useEffect(() => {
+      console.log('Starting connection');
       const itemSocket = new WebSocket(
         'ws://' + window.location.host + '/ws/items/' + projectId + '/'
       );
+      console.log('connection created');
   
       itemSocket.onmessage = function (e) {
         console.log('Message received');
@@ -61,7 +63,14 @@ export default function Items({ projectId, currentUsername }) {
           }
         }
       };
-  
+      itemSocket.onerror = function (e) {
+        console.error('Item socket error:', e);
+      };
+
+      itemSocket.onclose = function (e) {
+        console.log('Item socket closed');
+      };
+
       itemSocketRef.current = itemSocket;
       return () => {
         itemSocketRef.current.close();

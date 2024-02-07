@@ -1,5 +1,6 @@
 import json
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import WebsocketConsumer, AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
 from asgiref.sync import async_to_sync
 from .models import ChatMessage, Project, Item, Comment, Note, ExcalidrawInstance
 from django.utils import timezone
@@ -8,30 +9,30 @@ from django.utils import timezone
 # PROBABLY BETTER TO MAKE EVERYTHING ASYNC TO SCALE
 
 # SHOULD CHECK IF DIFFERENT CHATS DON'T FETCH OTHERS, BUT SHOULD BE OK PER IMPLEMENTATION OF get_chat_history
-class ChatConsumer(WebsocketConsumer):
-    def connect(self):
+class ChatConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name = f"chat_{self.room_name}"
 
         # Join room group
-        async_to_sync(self.channel_layer.group_add)(
+        await self.channel_layer.group_add(
             self.room_group_name, self.channel_name 
         )
 
-        self.accept()
+        await self.accept()
 
-        chat_history = self.get_chat_history()
+        chat_history = await self.get_chat_history()
 
-        self.send(text_data=json.dumps({"type":"chat_history","chat_history":chat_history}))
+        await self.send(text_data=json.dumps({"type":"chat_history","chat_history":chat_history}))
 
-    def disconnect(self,close_code):
+    async def disconnect(self,close_code):
         #Leave group
-        async_to_sync(self.channel_layer.group_discard)(
+        await self.channel_layer.group_discard(
             self.room_group_name, self.channel_name
         )
     
     # Receive message from Websocket
-    def receive(self,text_data):
+    async def receive(self,text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json.get('message')
         timestamp = timezone.now()
@@ -44,71 +45,78 @@ class ChatConsumer(WebsocketConsumer):
             message=message, 
             timestamp=timestamp
             )
-        chat_message.save()
+        
+        await self.save_message(chat_message)
 
         # Send message to room group
-        async_to_sync(self.channel_layer.group_send)(
+        await self.channel_layer.group_send(
             self.room_group_name, {"type":"chat.message","message":message,"sender":sender.username, "timestamp":timestamp.strftime("%b %d %Y, %I:%M %p")}
         )
 
    # Receive message from room group
-    def chat_message(self, event):
+    async def chat_message(self, event):
         message = event["message"]
         sender =  event.get('sender','')
         timestamp = event.get('timestamp')
 
         # Send message to WebSocket 
-        self.send(text_data=json.dumps({"type":"message", "message": message, "sender":sender, "timestamp":timestamp}))
+        await self.send(text_data=json.dumps({"type":"message", "message": message, "sender":sender, "timestamp":timestamp}))
 
+    @database_sync_to_async
+    def save_message(self,chat_message):
+        chat_message.save()
+        return
+
+    @database_sync_to_async
     def get_chat_history(self):
         chat_messages = ChatMessage.objects.filter(room_id=self.room_name).order_by("-timestamp")[:10]
+        chat_history = [message.serialize() for message in chat_messages]
+        return chat_history
 
-        return [message.serialize() for message in chat_messages]
 
-
-class NotesConsumer(WebsocketConsumer):
-    def connect(self):
+class NotesConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name = f"notes_{self.room_name}"
 
         # Join room group
-        async_to_sync(self.channel_layer.group_add)(
+        await self.channel_layer.group_add(
             self.room_group_name, self.channel_name
         )
 
-        self.accept()
+        await self.accept()
 
         
         # Can't directly serialize query
-        notes = self.get_notes()
+        notes = await self.get_notes()
 
-        self.send(text_data=json.dumps({"type":"notes","notes":notes})) 
+        await self.send(text_data=json.dumps({"type":"notes","notes":notes})) 
     
-    def disconnect(self,close_code):
+    async def disconnect(self,close_code):
         #Leave group
-        async_to_sync(self.channel_layer.group_discard)(
+        await self.channel_layer.group_discard(
             self.room_group_name, self.channel_name
         )
 
     
         # Receive message from websocket
-    def receive(self,text_data):
+    async def receive(self,text_data):
         text_data_json = json.loads(text_data)
         message_type = text_data_json.get('type')
 
         if message_type == 'new_note':
             content = text_data_json.get('content')
-            project = Project.objects.get(pk=self.room_name)
+            project = await self.get_project(self.room_name)
 
             new_note = Note(
                 created_by = self.scope["user"],
                 content = content,
                 project = project
             )
-            new_note.save()
+            await self.save_note(new_note)
             
             # Send message to group
-            async_to_sync(self.channel_layer.group_send)(
+            await self.channel_layer.group_send(
                 self.room_group_name, {
                     "type":"note.new",
                     "new_note":new_note.serialize()
@@ -116,31 +124,48 @@ class NotesConsumer(WebsocketConsumer):
             )
         elif message_type == 'delete_note':
             note_id = text_data_json.get('note_id')
-            note_to_delete = Note.objects.get(pk=note_id)
-            note_to_delete.delete()
+            await self.delete_note(note_id)
 
             # Send message to group
-            async_to_sync(self.channel_layer.group_send)(
+            await self.channel_layer.group_send(
                 self.room_group_name, {
                     "type":"note.delete",
                     "note_id":note_id
                 }
             )
 
-    def note_new(self,event):
+    async def note_new(self,event):
         new_note = event["new_note"]
 
-        self.send(text_data=json.dumps({"type":"new_note","new_note":new_note}))
+        await self.send(text_data=json.dumps({"type":"new_note","new_note":new_note}))
 
-    def note_delete(self,event):
+    async def note_delete(self,event):
         note_id = event["note_id"]
         
-        self.send(text_data=json.dumps({"type":"delete_note","note_id":note_id}))
+        await self.send(text_data=json.dumps({"type":"delete_note","note_id":note_id}))
 
+
+    @database_sync_to_async
     def get_notes(self):
-        notes = Note.objects.filter(project=Project.objects.get(pk=self.room_name))
-        return [note.serialize() for note in notes]
+        notes_query = Note.objects.filter(project=Project.objects.get(pk=self.room_name))
+        notes = [note.serialize() for note in notes_query]
+        return notes
+    
+    @database_sync_to_async
+    def save_note(self,new_note):
+        new_note.save()
+        return
 
+    @database_sync_to_async
+    def delete_note(self,note_id):
+        note_to_delete = Note.objects.get(pk=note_id)
+        note_to_delete.delete()
+        return
+
+    @database_sync_to_async
+    def get_project(self,id):
+        project = Project.objects.get(pk=id)
+        return project
 
 class ExcalidrawConsumer(WebsocketConsumer):
     def connect(self):
@@ -200,43 +225,30 @@ class ExcalidrawConsumer(WebsocketConsumer):
 
 
 
-class ItemConsumer(WebsocketConsumer):
-    def connect(self):
+class ItemConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name = f"items_{self.room_name}"
 
         # join room group
-        async_to_sync(self.channel_layer.group_add)(
+        await self.channel_layer.group_add(
             self.room_group_name, self.channel_name
         )
 
-        self.accept()
+        await self.accept()
 
-        items = []
-        item_objects = Item.objects.filter(project=(Project.objects.get(pk=self.room_name)))
+        items = await self.load_items(self.room_name)
         
-        for item in item_objects:
-            comments = Comment.objects.filter(item=item)
+        await self.send(text_data=json.dumps({"type":"items", "items":items}))
 
-            items.append({
-                "item_id":item.id,
-                "created_by":item.created_by.username,
-                "title": item.title,
-                "description": item.description,
-                "timestamp": item.created_at.strftime("%b %d %Y, %I:%M %p"), 
-                "comments": [comment.serialize() for comment in comments],
-            })
-        
-        self.send(text_data=json.dumps({"type":"items", "items":items}))
-
-    def disconnect(self,close_code):
+    async def disconnect(self,close_code):
         #Leave group
-        async_to_sync(self.channel_layer.group_discard)(
+        await self.channel_layer.group_discard(
             self.room_group_name, self.channel_name
         )
 
     # Receive message from websocket
-    def receive(self,text_data):
+    async def receive(self,text_data):
         text_data_json = json.loads(text_data)
         message_type = text_data_json.get('type','')
         action = text_data_json.get('action')
@@ -245,13 +257,13 @@ class ItemConsumer(WebsocketConsumer):
             if action == "create":
                 item = Item(
                     created_by=self.scope["user"],
-                    project=Project.objects.get(pk=self.room_name),
+                    project=await self.get_project(self.room_name),
                     title=text_data_json.get('title'),
                     description=text_data_json.get('description'),
                 )
-                item.save()
+                await self.save_item(item)
                 # Send message to room group
-                async_to_sync(self.channel_layer.group_send)(
+                await self.channel_layer.group_send(
                     self.room_group_name, {"type":"message.item",
                     "item_id":item.id,
                     "created_by":self.scope["user"].username,
@@ -261,10 +273,10 @@ class ItemConsumer(WebsocketConsumer):
                 )
             elif action == "delete":
                 item_id = text_data_json.get('item_id')
-                item_to_delete = Item.objects.get(pk=item_id)
-                item_to_delete.delete()
+                await self.delete_item(item_id)
+                
                 # Send message to room group
-                async_to_sync(self.channel_layer.group_send)(
+                await self.channel_layer.group_send(
                     self.room_group_name, {
                         "type":"item.delete",
                         "item_id":item_id
@@ -275,12 +287,12 @@ class ItemConsumer(WebsocketConsumer):
             if action == "create":
                 comment = Comment(
                     created_by=self.scope["user"],
-                    item=Item.objects.get(pk=text_data_json.get('item_id')),
+                    item=await self.get_item(text_data_json.get('item_id')),
                     text=text_data_json.get('text'),
                 )
-                comment.save()
+                await self.save_comment(comment)
                 # Send message to room group
-                async_to_sync(self.channel_layer.group_send)(
+                await self.channel_layer.group_send(
                     self.room_group_name, {"type":"message.comment",
                     "id":comment.pk,
                     "item_id": comment.item.id,
@@ -291,10 +303,10 @@ class ItemConsumer(WebsocketConsumer):
             elif action =="delete":
                 item_id = text_data_json.get('item_id')
                 comment_id = text_data_json.get('comment_id')
-                comment_to_delete = Comment.objects.get(pk=comment_id)
-                comment_to_delete.delete()
+                await self.delete_comment(comment_id)
+                
                 # Send message to room group
-                async_to_sync(self.channel_layer.group_send)(
+                await self.channel_layer.group_send(
                     self.room_group_name, {
                         "type":"comment.delete",
                         "item_id":item_id,
@@ -302,9 +314,8 @@ class ItemConsumer(WebsocketConsumer):
                     }
                 )
 
-
     # Receive two types of messages from room group in separated functions    
-    def message_item(self,event):
+    async def message_item(self,event):
         item = {
             "item_id": event.get('item_id'),
             "created_by": event.get('created_by'),
@@ -313,9 +324,9 @@ class ItemConsumer(WebsocketConsumer):
             "timestamp":event.get('timestamp'),
         }
         # Send message to WebSocket
-        self.send(text_data=json.dumps({"type":"item","action":"create","item":item}))
+        await self.send(text_data=json.dumps({"type":"item","action":"create","item":item}))
     
-    def message_comment(self,event):
+    async def message_comment(self,event):
         item_id = event.get('item_id')
         comment = {
             "id":event.get('id'),
@@ -324,17 +335,65 @@ class ItemConsumer(WebsocketConsumer):
             "timestamp":event.get('timestamp'),
         }
         # Send message to WebSocket
-        self.send(text_data=json.dumps({"type":"comment","action":"create","item_id":item_id, "comment":comment}))
+        await self.send(text_data=json.dumps({"type":"comment","action":"create","item_id":item_id, "comment":comment}))
 
-    def item_delete(self,event):
+    async def item_delete(self,event):
         item_id = event.get('item_id')
-        self.send(text_data=json.dumps({"type":"item","action":"delete","item_id":item_id}))
+        await self.send(text_data=json.dumps({"type":"item","action":"delete","item_id":item_id}))
 
-    def comment_delete(self,event):
+    async def comment_delete(self,event):
         item_id = event.get('item_id')
         comment_id = event.get('comment_id')
-        self.send(text_data=json.dumps({"type":"comment","action":"delete","item_id":item_id,"comment_id":comment_id}))
+        await self.send(text_data=json.dumps({"type":"comment","action":"delete","item_id":item_id,"comment_id":comment_id}))
 
+    @database_sync_to_async
+    def get_project(self,project_id):
+        project=Project.objects.get(pk=project_id)
+        return project
 
+    @database_sync_to_async
+    def get_item(self,item_id):
+        item = Item.objects.get(pk=item_id)
+        return item
 
+    @database_sync_to_async
+    def save_item(self,item):
+        item.save()
+        return
+
+    @database_sync_to_async
+    def delete_item(self,item_id):
+        item_to_delete = Item.objects.get(pk=item_id)
+        item_to_delete.delete()
+        return
+
+    @database_sync_to_async
+    def save_comment(self,comment):
+        comment.save()
+        return
+
+    @database_sync_to_async
+    def delete_comment(self,comment_id):
+        comment_to_delete = Comment.objects.get(pk=comment_id)
+        comment_to_delete.delete()
+        return
+
+    @database_sync_to_async
+    def load_items(self,project_id):
+        items_list = []
+        item_objects = Item.objects.filter(project=(Project.objects.get(pk=project_id)))
+            
+        for item in item_objects:
+            comments = Comment.objects.filter(item=item)
+
+            items_list.append({
+                "item_id":item.id,
+                "created_by":item.created_by.username,
+                "title": item.title,
+                "description": item.description,
+                "timestamp": item.created_at.strftime("%b %d %Y, %I:%M %p"), 
+                "comments": [comment.serialize() for comment in comments],
+            })
+
+        return items_list
     
