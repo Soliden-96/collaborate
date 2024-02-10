@@ -117,7 +117,7 @@ function Whiteboard({projectId, userId, selectedWhiteboard}) {
     function useData(url) {
         const [data,setData] = useState({
             elements:[],
-            appState: { zenModeEnabled: true, viewBackgroundColor: "#a5d8ff" },
+            appState: { zenModeEnabled: true, viewBackgroundColor: "#f5faff" },
             scrollToContent: true
         });
         const [loading,setLoading] = useState(true);
@@ -152,6 +152,7 @@ function Canvas({projectId, userId, initialData, whiteboardId}) {
     const [excalidrawAPI, setExcalidrawAPI] = useState(null);
     const socketRef = useRef(null);
     const isServerUpdate = useRef(false);
+    const isDrawing = useRef(false);
     const prevElements = useRef(initialData.elements);
     const prevAppState = useRef(initialData.appState);
     
@@ -186,35 +187,54 @@ function Canvas({projectId, userId, initialData, whiteboardId}) {
             console.log('Drawing socket closed');
         };
         socketRef.current = socket;
+        document.addEventListener('keyup', handleKeyUp);
 
         return () => {
             socketRef.current.close();
+            document.removeEventListener('keyup', handleKeyUp);
         };
 
     },[whiteboardId,userId,excalidrawAPI]) // Adding excalidraw api to the dependencies ensures that it is already mounted otherwise it's null
 
-    // Excalidraw onChange signature: (excalidrawElements, appState, files) => void;
-    function handleDrawingChange(elements,appState) {
-        console.log('handling..');
-        const elementsChanged = JSON.stringify(elements) !== JSON.stringify(prevElements.current);
-        const appStateChanged = JSON.stringify(appState) !== JSON.stringify(prevAppState.current);
-        prevElements.current = elements;
-        prevAppState.current = appState;
-        // Need to implement additional check to avoid sending when just the appState changes
-        if (elementsChanged || appStateChanged) {
-            if (isServerUpdate.current) {
-                isServerUpdate.current = false;
-            } else if (socketRef.current.readyState === WebSocket.OPEN && !isServerUpdate.current) {
-                console.log(elements);
-                
-                socketRef.current.send(JSON.stringify({
-                    'excalidrawElements':elements,
-                    'user_id':userId,
-                }));
-            };
+
+    function handlePointerDown(activeTool) {
+        if (activeTool!=="hand") {
+            console.log('Pointer Down');
+            isDrawing.current = true;
+            const intervalId = setInterval(() => {
+                if (isDrawing.current) {
+                    const elements = excalidrawAPI.getSceneElements();
+                    sendSceneUpdate(elements);
+                } else {
+                    clearInterval(intervalId); // Clear the interval using the interval ID
+                }
+            }, 500) 
+            excalidrawAPI.onPointerUp(() => handlePointerUp(intervalId));
         }
-        
     }
+
+    function handlePointerUp(intervalId) {
+        console.log('Pointer up');
+        clearInterval(intervalId);
+        isDrawing.current = false;
+        setTimeout(() => {
+            const elements = excalidrawAPI.getSceneElements();
+            sendSceneUpdate(elements);
+        }, 200); 
+    }
+
+    function handleKeyUp(event) {
+        const elements = excalidrawAPI.getSceneElements();
+        sendSceneUpdate(elements);
+    }
+    
+    function sendSceneUpdate(elements) {
+        socketRef.current.send(JSON.stringify({
+            'excalidrawElements':elements,
+            'user_id': userId,
+        }));
+    }
+    // Excalidraw onChange signature: (excalidrawElements, appState, files) => void;
 
     return (
         <>
@@ -223,7 +243,8 @@ function Canvas({projectId, userId, initialData, whiteboardId}) {
             <Excalidraw 
             initialData={initialData}
             excalidrawAPI={(api)=> setExcalidrawAPI(api)}
-            onChange={(elements,appState) => handleDrawingChange(elements,appState)}
+            onPointerDown={(activeTool) => handlePointerDown(activeTool)}
+            
             />
         </div>
         </>
