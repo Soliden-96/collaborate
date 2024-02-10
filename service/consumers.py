@@ -167,48 +167,33 @@ class NotesConsumer(AsyncWebsocketConsumer):
         project = Project.objects.get(pk=id)
         return project
 
-class ExcalidrawConsumer(WebsocketConsumer):
-    def connect(self):
+class ExcalidrawConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name  = f"excalidraw_{self.room_name}"
 
         # Join room group
-        async_to_sync(self.channel_layer.group_add)(
-            self.room_group_name, self.channel_name
+        await self.channel_layer.group_add(
+            self.room_group_name, self.channel_name 
         )
-        self.accept()
-        
-        current_project = Project.objects.get(pk=self.room_name)
-        try:
-            whiteboard = ExcalidrawInstance.objects.get(project=current_project)
-            
-            self.send(text_data=json.dumps({"type":"init","excalidraw_elements":whiteboard.elements}))
-        except ExcalidrawInstance.DoesNotExist:
-            self.send(text_data=json.dumps({"type":"new_whiteboard"}))
-
+        await self.accept()
         
 
-    def disconnect(self,close_code):
+    async def disconnect(self,close_code):
         #Leave group
-        async_to_sync(self.channel_layer.group_discard)(
+        await self.channel_layer.group_discard(
             self.room_group_name, self.channel_name
         )
     # Receive from websocket
-    def receive(self,text_data):
+    async def receive(self,text_data):
         text_data_json = json.loads(text_data)
-        excalidraw_elements = text_data_json.get('excalidrawElements')
         user_id = text_data_json.get('user_id')
-            
-        # update the database instance if it exist, else create a new one
-        current_project = Project.objects.get(pk=self.room_name)
+        excalidraw_elements = text_data_json.get('excalidrawElements') 
         
-        current_whiteboard = ExcalidrawInstance.objects.get(project=current_project)
-        current_whiteboard.elements = excalidraw_elements
-        current_whiteboard.save()
-        
-            
+        await self.update_whiteboard(self.room_name,excalidraw_elements)
+
         # Send message to group
-        async_to_sync(self.channel_layer.group_send)(
+        await self.channel_layer.group_send(
             self.room_group_name, {
                 "type":"update.new",
                 "excalidraw_elements":excalidraw_elements,
@@ -216,12 +201,18 @@ class ExcalidrawConsumer(WebsocketConsumer):
             }
         )
  
-    def update_new(self,event):
+    async def update_new(self,event):
         excalidraw_elements = event["excalidraw_elements"]
         user_id = event["user_id"]
-        self.send(text_data=json.dumps({"type":"update","excalidraw_elements":excalidraw_elements,"user_id":user_id}))
+        await self.send(text_data=json.dumps({"type":"update","excalidraw_elements":excalidraw_elements,"user_id":user_id}))
 
-
+    
+    @database_sync_to_async
+    def update_whiteboard(self,whiteboard_id,excalidraw_elements):
+        current_whiteboard = ExcalidrawInstance.objects.get(pk=whiteboard_id)
+        current_whiteboard.elements = excalidraw_elements
+        current_whiteboard.save()
+        return
 
 
 

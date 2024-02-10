@@ -143,17 +143,6 @@ def invitation_denied(request,invitation_id):
 
     return HttpResponseRedirect(reverse("profile"))
 
-# ?? Necessary ??
-def get_thread(request,item_id):
-    if request.method != "GET":
-        return JsonResponse({"message":"Invalid request"},status=400)
-    
-    comments = Comment.objects.filter(item=(Item.objects.get(pk=item_id))).order_by("-created_at")
-    if comments is None:
-        return JsonResponse({"message":"This item has no comments"},status=404)
-
-    return JsonResponse({"success":True,"comments":[comment.serialize() for comment in comments]},status=200)
-
 
 def upload_file(request):
     if request.method != "POST":
@@ -215,18 +204,49 @@ def download_file(request,project_id,file_id):
 
     return JsonResponse({"message":"You have no permission to download the file"},status=400)
 
+@login_required
+def get_whiteboard_elements(request,project_id,whiteboard_id):   
+    current_project = Project.objects.get(pk=project_id)
+    whiteboard = ExcalidrawInstance.objects.get(pk=whiteboard_id,project=current_project)
+    elements_list = whiteboard.elements
+    return JsonResponse({"elements":elements_list},status=200)
+    
 
-def get_whiteboard_elements(request,project_id):
-    try:
-        current_project = Project.objects.get(pk=project_id)
-        whiteboard = ExcalidrawInstance.objects.get(project=current_project)
-        elements_list = whiteboard.elements
-        return JsonResponse({"elements":elements_list},status=200)
-    except ExcalidrawInstance.DoesNotExist:
-        new_whiteboard = ExcalidrawInstance(project=current_project)
-        new_whiteboard.save()
-        return JsonResponse({"elements":[]},status=200)
+@login_required
+def get_whiteboards(request,project_id):
+    current_project = Project.objects.get(pk=project_id)
+    whiteboards = ExcalidrawInstance.objects.filter(project=current_project)
+    return JsonResponse({"whiteboards":[whiteboard.serialize() for whiteboard in whiteboards]},status=200)
 
+
+@login_required
+def create_whiteboard(request):
+    if request.method != 'POST':
+        return JsonResponse({"message":"Invalid request"},status=400)
+
+    data = json.loads(request.body)
+    project_id = data.get('project_id')
+    title = data.get('title')
+    new_whiteboard = ExcalidrawInstance(
+        title=title,
+        created_by=request.user,
+        project=Project.objects.get(pk=project_id)
+    )
+    new_whiteboard.save()
+
+    return JsonResponse({"new_whiteboard":new_whiteboard.serialize(),"success":True},status=200)
+
+
+@login_required
+def delete_whiteboard(request):
+    if request.method != 'DELETE':
+        return JsonResponse({"message":"Invalid request"},status=400)
+
+    data = json.loads(request.body)
+    whiteboard_id = data.get('whiteboard_id')
+    whiteboard_to_delete = ExcalidrawInstance.objects.get(pk=whiteboard_id)
+    whiteboard_to_delete.delete()
+    return JsonResponse({"message":"Whiteboard instance deleted","success":True},status=200)
 
 
 

@@ -6,7 +6,7 @@ import Chat from './Chat.jsx';
 import Items from './Items.jsx';
 import FileRepo from './Files.jsx';
 import Notes from './Notes.jsx';
-import Whiteboard from './Whiteboard.jsx';
+import WhiteboardMenu from './Whiteboard.jsx';
 
 
 const projectId = parseInt(document.querySelector('#project-info').dataset.project);
@@ -18,7 +18,7 @@ const tools = {
         'Items':Items,
         'FileRepo':FileRepo,
         'Notes':Notes,
-        'Whiteboard':Whiteboard
+        'WhiteboardMenu':WhiteboardMenu
     }
 
 
@@ -36,7 +36,7 @@ export default function Project({}) {
       <button onClick={() => setSelectedTool('Items')}>Items</button>
       <button onClick={() => setSelectedTool('FileRepo')}>Files</button>
       <button onClick={() => setSelectedTool('Notes')}>Notes</button>
-      <button onClick={() => setSelectedTool('Whiteboard')}>Whiteboard</button>
+      <button onClick={() => setSelectedTool('WhiteboardMenu')}>Whiteboard</button>
       <Tool currentTool={currentTool} projectId={projectId} userId={userId} currentUsername={currentUsername} />
       </>
   )

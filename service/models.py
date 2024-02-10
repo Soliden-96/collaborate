@@ -109,9 +109,18 @@ class Note(models.Model):
 
     
 class ExcalidrawInstance(models.Model):
+    title = models.CharField(max_length=64)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="whiteboards")
     elements = models.JSONField(null=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="excalidraw_instances")
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def serialize(self):
+        return {
+            "id":self.pk,
+            "title":self.title,
+            "created_by":self.created_by.username
+        }
 
 
 
