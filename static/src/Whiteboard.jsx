@@ -156,6 +156,7 @@ function Canvas({projectId, userId, initialData, whiteboardId}) {
     const prevElements = useRef(initialData.elements);
     const prevAppState = useRef(initialData.appState);
     
+    
     console.log('data coming')
     console.log(initialData);
     useEffect(() => {
@@ -170,7 +171,7 @@ function Canvas({projectId, userId, initialData, whiteboardId}) {
         socket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             console.log(data);
-            if (data.type==='update' && data.user_id!==userId) {
+            if (data.type==='update_elements' && data.user_id!==userId) {
                 console.log(data.excalidraw_elements);
                 isServerUpdate.current = true;
                 const sceneData = {
@@ -178,6 +179,10 @@ function Canvas({projectId, userId, initialData, whiteboardId}) {
                 }
                 excalidrawAPI.updateScene(sceneData);
                 console.log('Scene Updated');
+            } else if (data.type==='update_files' && data.user_id!==userId) {
+                const files_array = Object.values(data.excalidraw_files);
+                console.log(files_array);
+                excalidrawAPI.addFiles(files_array);
             } 
         };
         socket.onerror = function(e) {
@@ -217,10 +222,22 @@ function Canvas({projectId, userId, initialData, whiteboardId}) {
         console.log('Pointer up');
         clearInterval(intervalId);
         isDrawing.current = false;
+        const currentFiles = excalidrawAPI.getFiles()
+        console.log(currentFiles);
+        sendFiles(currentFiles);
         setTimeout(() => {
             const elements = excalidrawAPI.getSceneElements();
             sendSceneUpdate(elements);
-        }, 200); 
+            
+        }, 200);
+    }
+
+    function sendFiles(newFiles) {
+        socketRef.current.send(JSON.stringify({
+            'message':'sending_files',
+            'excalidraw_files':newFiles,
+            'user_id':userId,
+        }));
     }
 
     function handleKeyUp(event) {
@@ -230,7 +247,8 @@ function Canvas({projectId, userId, initialData, whiteboardId}) {
     
     function sendSceneUpdate(elements) {
         socketRef.current.send(JSON.stringify({
-            'excalidrawElements':elements,
+            'message':'sending_elements',
+            'excalidraw_elements':elements,
             'user_id': userId,
         }));
     }
@@ -244,7 +262,7 @@ function Canvas({projectId, userId, initialData, whiteboardId}) {
             initialData={initialData}
             excalidrawAPI={(api)=> setExcalidrawAPI(api)}
             onPointerDown={(activeTool) => handlePointerDown(activeTool)}
-            
+
             />
         </div>
         </>

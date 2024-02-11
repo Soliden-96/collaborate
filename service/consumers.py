@@ -187,24 +187,47 @@ class ExcalidrawConsumer(AsyncWebsocketConsumer):
     # Receive from websocket
     async def receive(self,text_data):
         text_data_json = json.loads(text_data)
-        user_id = text_data_json.get('user_id')
-        excalidraw_elements = text_data_json.get('excalidrawElements') 
-        
-        await self.update_whiteboard(self.room_name,excalidraw_elements)
+        message = text_data_json.get('message')
+        if message == 'sending_elements':
+            user_id = text_data_json.get('user_id')
+            excalidraw_elements = text_data_json.get('excalidraw_elements') 
+            
+            await self.update_whiteboard(self.room_name,excalidraw_elements)
 
-        # Send message to group
-        await self.channel_layer.group_send(
-            self.room_group_name, {
-                "type":"update.new",
-                "excalidraw_elements":excalidraw_elements,
-                "user_id":user_id
-            }
-        )
+            # Send message to group
+            await self.channel_layer.group_send(
+                self.room_group_name, {
+                    "type":"update.elements",
+                    "excalidraw_elements":excalidraw_elements,
+                    "user_id":user_id
+                }
+            )
+        elif message == 'sending_files':
+            user_id = text_data_json.get('user_id')
+            excalidraw_files = text_data_json.get('excalidraw_files')
+
+            
+
+            # Send message to group
+
+            await self.channel_layer.group_send(
+                self.room_group_name, {
+                    "type":"update.files",
+                    "excalidraw_files":excalidraw_files,
+                    "user_id":user_id
+                }
+            )
+
  
-    async def update_new(self,event):
+    async def update_elements(self,event):
         excalidraw_elements = event["excalidraw_elements"]
         user_id = event["user_id"]
-        await self.send(text_data=json.dumps({"type":"update","excalidraw_elements":excalidraw_elements,"user_id":user_id}))
+        await self.send(text_data=json.dumps({"type":"update_elements","excalidraw_elements":excalidraw_elements,"user_id":user_id}))
+
+    async def update_files(self,event):
+        excalidraw_files = event["excalidraw_files"]
+        user_id = event["user_id"]
+        await self.send(text_data=json.dumps({"type":"update_files","excalidraw_files":excalidraw_files,"user_id":user_id}))
 
     
     @database_sync_to_async
