@@ -13,30 +13,38 @@ const projectId = parseInt(document.querySelector('#project-info').dataset.proje
 const userId = parseInt(document.querySelector('#project-info').dataset.user);
 const currentUsername = document.querySelector('#project-info').dataset.username;
 const tools = {
-        'Invite':Invite,
-        'Chat':Chat,
-        'Items':Items,
-        'FileRepo':FileRepo,
-        'Notes':Notes,
-        'WhiteboardMenu':WhiteboardMenu
+        'Invite':{'name':'Invite','component':Invite},
+        'Chat':{'name':'Chat','component':Chat},
+        'Items':{'name':'Items','component':Items},
+        'FileRepo':{'name':'FileRepo','component':FileRepo},
+        'Notes':{'name':'Notes','component':Notes},
+        'WhiteboardMenu':{'name':'WhiteboardMenu','component':WhiteboardMenu}
     }
 
 
 export default function Project({}) {
   const [selectedTool, setSelectedTool] = useState('');
-  const currentTool = tools[selectedTool];
-  useEffect(() => {
-    console.log('project' + projectId);
-    console.log('user' + userId);
-  })
+  let currentTool = null;
+  if (selectedTool) {
+    currentTool = tools[selectedTool].component;
+  }
+
   return (
       <>
-      <button onClick={() => setSelectedTool('Invite')}>Invite users</button>
-      <button onClick={() => setSelectedTool('Chat')}>Chat</button>
-      <button onClick={() => setSelectedTool('Items')}>Items</button>
-      <button onClick={() => setSelectedTool('FileRepo')}>Files</button>
-      <button onClick={() => setSelectedTool('Notes')}>Notes</button>
-      <button onClick={() => setSelectedTool('WhiteboardMenu')}>Whiteboard</button>
+        <div style={{ textAlign:'center' }}>
+        <div className="menu-bar">
+            {Object.keys(tools).map(tool => (
+                <button 
+                    key={tools[tool].name}
+                    id={tools[tool].name}
+                    className={selectedTool===tools[tool].name ? 'selected-tool':''}
+                    onClick={() => setSelectedTool(tools[tool].name)}
+                >
+                    {tools[tool].name}
+                </button>
+            ))}
+        </div>
+        </div>
       <Tool currentTool={currentTool} projectId={projectId} userId={userId} currentUsername={currentUsername} />
       </>
   )
