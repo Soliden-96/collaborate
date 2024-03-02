@@ -108,7 +108,7 @@ export default function WhiteboardMenu({projectId, userId, currentUsername}) {
 
 function Whiteboard({projectId, userId, selectedWhiteboard}) {
     const whiteboardId = parseInt(selectedWhiteboard);
-    const {data,loading} = useData(`/get_whiteboard_elements/${projectId}/${whiteboardId}`)
+    const {data,files,loading} = useData(`/get_whiteboard_elements/${projectId}/${whiteboardId}`)
     
     // Using a custom hook to make sure that the Excalidraw component (in the Canvas component) is rendered with the correct initialData
     // Not doing so will cause the Excalidraw component to render before the initialData is loaded and 
@@ -120,21 +120,26 @@ function Whiteboard({projectId, userId, selectedWhiteboard}) {
             appState: { zenModeEnabled: true, viewBackgroundColor: "#f5faff" },
             scrollToContent: true
         });
+
+        const [files,setFiles] = useState();
         const [loading,setLoading] = useState(true);
         useEffect(() => {
             const fetchData = async () => {
                 const response = await fetch(url);
                 const data = await response.json();
                 const elements = data.elements || [];
+                const files = data.whiteboard_files;
+                console.log(files);
                 setData((prevData) => ({
                     ...prevData,
                     elements:elements
                 }));
+                setFiles(files);
                 setLoading(false);
             }
             fetchData()
         },[url]);
-        return {data,loading};
+        return {data,files,loading};
     }
 
     if (loading) {
@@ -143,12 +148,12 @@ function Whiteboard({projectId, userId, selectedWhiteboard}) {
 
     return (
         <div className="whiteboard">
-            <Canvas projectId={projectId} userId={userId} initialData={data} whiteboardId={whiteboardId} />
+            <Canvas projectId={projectId} userId={userId} initialData={data} initialFiles={files} whiteboardId={whiteboardId} />
         </div>
     )
 }
 
-function Canvas({projectId, userId, initialData, whiteboardId}) {
+function Canvas({projectId, userId, initialData, initialFiles, whiteboardId}) {
     const [excalidrawAPI, setExcalidrawAPI] = useState(null);
     const socketRef = useRef(null);
     const isServerUpdate = useRef(false);
@@ -158,7 +163,7 @@ function Canvas({projectId, userId, initialData, whiteboardId}) {
     
     
     console.log('data coming')
-    console.log(initialData);
+    console.log(initialFiles);
     useEffect(() => {
         console.log('Connecting...');
         const socket = new WebSocket(
@@ -180,9 +185,9 @@ function Canvas({projectId, userId, initialData, whiteboardId}) {
                 excalidrawAPI.updateScene(sceneData);
                 console.log('Scene Updated');
             } else if (data.type==='update_files' && data.user_id!==userId) {
-                const files_array = Object.values(data.excalidraw_files);
-                console.log(files_array);
-                excalidrawAPI.addFiles(files_array);
+                const filesArray = Object.values(data.excalidraw_files);
+                console.log(filesArray);
+                excalidrawAPI.addFiles(filesArray);
             } 
         };
         socket.onerror = function(e) {
@@ -193,6 +198,12 @@ function Canvas({projectId, userId, initialData, whiteboardId}) {
         };
         socketRef.current = socket;
         document.addEventListener('keyup', handleKeyUp);
+
+        if (initialFiles && excalidrawAPI) {
+            console.log(initialFiles);
+            const initialFilesArray = Object.values(initialFiles);
+            excalidrawAPI.addFiles(initialFilesArray);
+        }
 
         return () => {
             socketRef.current.close();

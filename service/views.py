@@ -209,7 +209,14 @@ def get_whiteboard_elements(request,project_id,whiteboard_id):
     current_project = Project.objects.get(pk=project_id)
     whiteboard = ExcalidrawInstance.objects.get(pk=whiteboard_id,project=current_project)
     elements_list = whiteboard.elements
-    return JsonResponse({"elements":elements_list},status=200)
+
+    # Logic for files
+    related_files = whiteboard.whiteboard_files.all()
+    files = {}
+    for file in related_files:
+        files[file.file_id] = file.serialize()
+
+    return JsonResponse({"elements":elements_list,"whiteboard_files":files},status=200)
     
 
 @login_required
