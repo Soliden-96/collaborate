@@ -1,9 +1,10 @@
 import  React ,{ useEffect, useState, useRef } from 'react'
 import Cookies from 'js-cookie';
+import ConfirmationWindow from './ConfirmationWindow.jsx';
 
 // For real-time files need to use Base64 encoding, and decoding on the backend
 
-export default function FileRepo({projectId, currentUsername}) {
+export default function FileRepo({projectId, currentUsername, isAdmin}) {
     const [files, setFiles] = useState([]);
 
     function addFile(file) {
@@ -47,13 +48,13 @@ export default function FileRepo({projectId, currentUsername}) {
         <>
         <FileUploadArea projectId={projectId} addFile={addFile} />
         <hr></hr>
-        <Files files={files} loadFiles={loadFiles} projectId={projectId} currentUsername={currentUsername} handleDeleteFile={handleDeleteFile}/>
+        <Files files={files} loadFiles={loadFiles} projectId={projectId} currentUsername={currentUsername} handleDeleteFile={handleDeleteFile} isAdmin={isAdmin} />
         </>
     )
 }
 
 
-function Files({projectId, files, loadFiles, currentUsername, handleDeleteFile}) {
+function Files({projectId, files, loadFiles, currentUsername, handleDeleteFile, isAdmin}) {
     
     // Security to ask for including project id in url
     useEffect(() => {
@@ -69,14 +70,16 @@ function Files({projectId, files, loadFiles, currentUsername, handleDeleteFile})
     return (
         <div className="files-div">
             {files.map((file) => (
-                <FileComponent key={file.id} file={file} projectId={projectId} currentUsername={currentUsername} handleDeleteFile={handleDeleteFile} /> 
+                <FileComponent key={file.id} file={file} projectId={projectId} currentUsername={currentUsername} handleDeleteFile={handleDeleteFile} isAdmin={isAdmin}/> 
             )
             )}
         </div>
     )
 }
 
-function FileComponent({file, projectId, currentUsername, handleDeleteFile}) {
+function FileComponent({file, projectId, currentUsername, handleDeleteFile, isAdmin}) {
+    const [fileToDelete,setFileToDelete] = useState(null);
+    const [showConfirmation,setShowConfirmation] = useState(false);
 
     function handleDownload() {
         fetch(`/download_file/${projectId}/${parseInt(file.id)}`)
@@ -100,7 +103,24 @@ function FileComponent({file, projectId, currentUsername, handleDeleteFile}) {
             console.log(error);
         });
     }
+
+    function askDeleteFile(fileId) {
+        setFileToDelete(fileId);
+        setShowConfirmation(true);
+    }
+
+    function confirmDelete() {
+        setShowConfirmation(false);
+        handleDeleteFile(fileToDelete);
+    }
+
+    function cancelDelete() {
+        setFileToDelete(null);
+        setShowConfirmation(false);
+    }
+
     return (
+        <>        
         <div key={file.id} className="file-component">
             <p>Name: {file.name}</p>
             <p>Uploaded By: {file.uploaded_by}</p>
@@ -109,9 +129,17 @@ function FileComponent({file, projectId, currentUsername, handleDeleteFile}) {
             <button onClick={handleDownload}>
                 Download File
             </button>
-            {file.uploaded_by === currentUsername && <button onClick={() => handleDeleteFile(file.id)}>Delete File</button>}
+            {(file.uploaded_by === currentUsername || isAdmin) && <button onClick={() => askDeleteFile(file.id)}>Delete File</button>}
             <hr></hr>
         </div>
+        {showConfirmation && (
+            <ConfirmationWindow 
+                message="Are you sure you want to delete this file?"
+                onConfirm={confirmDelete}
+                onCancel={cancelDelete}
+            />
+        )}
+        </>
     );
 }
 

@@ -92,8 +92,13 @@ def create_project(request):
 
 
 def project(request,id):
-    project = Project.objects.get(id=id)
-    return render(request,"service/project.html",{"project":project})
+    project = Project.objects.get(pk=id)
+    if ProjectMembership.objects.filter(project=project,user=request.user,is_admin=True).exists():
+        is_admin=True
+    else:
+        is_admin=False
+    
+    return render(request,"service/project.html",{"project":project,"is_admin":is_admin})
 
 
 @login_required
@@ -111,7 +116,7 @@ def send_invitation(request,projectId):
     if receiver is None:
         return JsonResponse({"message":"this user doesn't exist"},status=404)
     
-    if ProjectMembership.objects.filter(user=receiver).exists():
+    if ProjectMembership.objects.filter(user=receiver,project_id=projectId).exists():
         return JsonResponse({"message":f"{invited_username} is already part of this project"},status=400)
 
     if Invitation.objects.filter(sender=request.user, receiver=receiver, project_id=projectId).exists():

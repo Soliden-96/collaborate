@@ -1,7 +1,8 @@
 import  React ,{ useEffect, useState, useRef } from 'react'
 import Cookies from 'js-cookie';
+import ConfirmationWindow from './ConfirmationWindow.jsx'
 
-export default function Notes({projectId, currentUsername}) {
+export default function Notes({projectId, currentUsername, isAdmin}) {
     const [newNoteInput, setNewNoteInput] = useState('');
     const [notes, setNotes] = useState([]);
     const notesSocketRef = useRef(null);
@@ -71,7 +72,7 @@ export default function Notes({projectId, currentUsername}) {
     return (
         <>
         <NewNote handleNewNote={handleNewNote} newNoteInput={newNoteInput} onNewNoteChange={handleNewNoteChange} projectId={projectId} />
-        <NotesList notes={notes} handleDeleteNote={handleDeleteNote} currentUsername={currentUsername} />
+        <NotesList notes={notes} handleDeleteNote={handleDeleteNote} currentUsername={currentUsername} isAdmin={isAdmin} />
         </>
     )
 }
@@ -86,7 +87,24 @@ function NewNote({handleNewNote, projectId, newNoteInput, onNewNoteChange}) {
     )
 }
 
-function NotesList({notes, currentUsername, handleDeleteNote}) { 
+function NotesList({notes, currentUsername, handleDeleteNote, isAdmin}) { 
+    const [showConfirmation,setShowConfirmation] = useState(false);
+    const [noteToDelete,setNoteToDelete] = useState(null);
+
+    function askDeleteNote(noteId) {
+        setNoteToDelete(noteId);
+        setShowConfirmation(true);
+    }
+
+    function confirmDelete() { 
+        setShowConfirmation(false);
+        handleDeleteNote(noteToDelete);
+    }
+
+    function cancelDelete() {
+        setShowConfirmation(false);
+        setNoteToDelete(null);
+    }
 
     return (
         <div className="notes">
@@ -95,9 +113,18 @@ function NotesList({notes, currentUsername, handleDeleteNote}) {
                     <div className="note-creator">{note.created_by}</div>
                     <div className="note-content">{note.content}</div>
                     <div className="note-timestamp">{note.timestamp}</div>
-                    {note.created_by === currentUsername && <button onClick={() => handleDeleteNote(note.id)}>Delete</button>}
+                    {(note.created_by === currentUsername || isAdmin) && <button onClick={() => askDeleteNote(note.id)}>Delete</button>}
                 </div>
             ))}
+
+            {showConfirmation && (
+                <ConfirmationWindow 
+                    message="Are you sure you want to delete this note??"
+                    onConfirm={confirmDelete}
+                    onCancel={cancelDelete}
+                />
+            )}
         </div>
     )
 }
+

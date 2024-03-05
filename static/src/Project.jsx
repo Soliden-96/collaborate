@@ -12,6 +12,7 @@ import WhiteboardMenu from './Whiteboard.jsx';
 const projectId = parseInt(document.querySelector('#project-info').dataset.project);
 const userId = parseInt(document.querySelector('#project-info').dataset.user);
 const currentUsername = document.querySelector('#project-info').dataset.username;
+const isAdmin = (document.querySelector('#project-info').dataset.is_admin) ==="True";
 const tools = {
         'Invite':{'name':'Invite','component':Invite},
         'Chat':{'name':'Chat','component':Chat},
@@ -28,6 +29,7 @@ export default function Project({}) {
   if (selectedTool) {
     currentTool = tools[selectedTool].component;
   }
+  console.log(isAdmin);
 
   return (
       <>
@@ -45,17 +47,17 @@ export default function Project({}) {
             ))}
         </div>
         </div>
-      <Tool currentTool={currentTool} projectId={projectId} userId={userId} currentUsername={currentUsername} />
+      <Tool currentTool={currentTool} projectId={projectId} userId={userId} currentUsername={currentUsername} isAdmin={isAdmin} />
       </>
   )
 }
 
-function Tool({currentTool, projectId, userId, currentUsername}) {
+function Tool({currentTool, projectId, userId, currentUsername, isAdmin }) {
     const CurrentTool = currentTool;
     if (CurrentTool) {
         return (
             <>
-            <CurrentTool projectId={projectId} userId={userId} currentUsername={currentUsername} />
+            <CurrentTool projectId={projectId} userId={userId} currentUsername={currentUsername} isAdmin={isAdmin} />
             </>
         )
     } else {

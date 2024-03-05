@@ -6,6 +6,7 @@ from .models import *
 
 admin.site.register(User)
 admin.site.register(Project)
+admin.site.register(Invitation)
 admin.site.register(ProjectMembership)
 admin.site.register(ChatMessage)
 admin.site.register(Item)

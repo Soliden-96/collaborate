@@ -1,11 +1,14 @@
 import  React ,{ useEffect, useState, useRef } from 'react'
 import { Excalidraw } from "@excalidraw/excalidraw";
 import Cookies from 'js-cookie';
+import ConfirmationWindow from './ConfirmationWindow.jsx';
 
-export default function WhiteboardMenu({projectId, userId, currentUsername}) {
+export default function WhiteboardMenu({projectId, userId, currentUsername, isAdmin}) {
     const [newWhiteboardTitle, setNewWhiteboardTitle] = useState('');
     const [whiteboards, setWhiteboards] = useState([]);
     const [selectedWhiteboardId, setSelectedWhiteboardId] = useState('');
+    const [whiteboardToDelete,setWhiteboardToDelete] = useState(null);
+    const [showConfirmation,setShowConfirmation] = useState(false);
  
     useEffect(() => {
         fetch(`/get_whiteboards/${projectId}`,)
@@ -74,6 +77,23 @@ export default function WhiteboardMenu({projectId, userId, currentUsername}) {
             console.log(error);
         })
     }
+
+    function askDeleteWhiteboard(whiteboardId) {
+        setWhiteboardToDelete(whiteboardId);
+        setShowConfirmation(true);
+    }
+
+    function confirmDelete() {
+        setShowConfirmation(false);
+        handleDeleteWhiteboard(whiteboardToDelete);
+    }
+
+    function cancelDelete() {
+        setWhiteboardToDelete(null);
+        setShowConfirmation(false);
+    }
+
+
     
     if (!selectedWhiteboardId){
         return (
@@ -90,10 +110,17 @@ export default function WhiteboardMenu({projectId, userId, currentUsername}) {
                 {whiteboards.map((whiteboard) => (
                     <div key={whiteboard.id} className="project-whiteboard">
                         <div className="whiteboard-title" onClick={() => setSelectedWhiteboardId(whiteboard.id)}>{whiteboard.title}</div>
-                        {currentUsername===whiteboard.created_by && <button onClick={() => handleDeleteWhiteboard(whiteboard.id)}>Delete</button>}
+                        {(currentUsername===whiteboard.created_by || isAdmin) && <button onClick={() => askDeleteWhiteboard(whiteboard.id)}>Delete</button>}
                     </div>
                 ))}
             </div>
+            {showConfirmation && (
+                <ConfirmationWindow
+                    message="Are you sure you want to delete this whiteboard??"
+                    onConfirm={confirmDelete}
+                    onCancel={cancelDelete}
+                />
+            )}
             </>
             )
     } else {

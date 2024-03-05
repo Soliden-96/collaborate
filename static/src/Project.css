@@ -15,7 +15,6 @@
     width: 2.5rem;
 }
 
-
 .menu-bar button:hover {
     background-color: #e4effc;
     box-shadow: 0 0 2px 2px #eaf1fa;
@@ -25,6 +24,43 @@
 
 .selected-tool {
     background-color: #e4effc;
+}
+
+.confirmation-window {
+    position: fixed;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    width: 300px;
+    text-align: center;
+}
+
+.confirmation-buttons {
+    display: flex;
+    justify-content: center;
+}
+
+.confirmation-buttons button {
+    margin-right: 10px;
+}
+
+.confirmation-buttons .confirm {
+    color:white;
+    background-color: rgb(5, 207, 5);
+    border: none;
+    border-radius: 10%;
+}
+
+.confirmation-buttons .cancel {
+    color:white;
+    background-color: red;
+    border:none;
+    border-radius: 10%;
 }
 
 

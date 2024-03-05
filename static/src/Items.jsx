@@ -1,8 +1,8 @@
 import  React ,{ useEffect, useState, useRef } from 'react'
-
 import Cookies from 'js-cookie';
+import ConfirmationWindow from './ConfirmationWindow';
 
-export default function Items({ projectId, currentUsername }) {
+export default function Items({ projectId, currentUsername, isAdmin }) {
     const [itemTitle, setItemTitle] = useState('');
     const [descriptionInput, setDescriptionInput] = useState('');
     const [items, setItems] = useState([]);
@@ -176,6 +176,7 @@ export default function Items({ projectId, currentUsername }) {
               currentUsername={currentUsername}
               handleDeleteComment={handleDeleteComment}
               handleDeleteItem={handleDeleteItem}
+              isAdmin={isAdmin}
             />
           ))}
         </div>
@@ -183,7 +184,18 @@ export default function Items({ projectId, currentUsername }) {
     );
   }
   
-  function Item({item,comments,newCommentText,onToggleThread,onAddComment,onNewCommentChange,isToggled,currentUsername,handleDeleteItem,handleDeleteComment}) {
+  function Item({item,comments,newCommentText,onToggleThread,onAddComment,onNewCommentChange,isToggled,currentUsername,handleDeleteItem,handleDeleteComment,isAdmin}) {
+    const [showItemConfirmation,setShowItemConfirmation] = useState(false);
+
+    function confirmDelete() {
+      setShowItemConfirmation(false);
+      handleDeleteItem(item.item_id);
+    }
+
+    function cancelDelete() {
+      setShowItemConfirmation(false);
+    }
+
     return (
       <>
       <div key={item.item_id}>
@@ -191,13 +203,22 @@ export default function Items({ projectId, currentUsername }) {
         <div className="title">{item.title}</div>
         <div className="description">{item.description}</div>
         <div className="timestamp">{item.timestamp}</div>
-        {item.created_by === currentUsername && <button onClick={() => handleDeleteItem(item.item_id)}>Delete Item</button>}
+        {(item.created_by === currentUsername || isAdmin) && <button onClick={() => setShowItemConfirmation(true)}>Delete Item</button>}
       </div>
+
+      {showItemConfirmation && (
+        <ConfirmationWindow
+          message="Are you sure you want to delete this item ?"
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+        />
+      )}
+
       <button onClick={() => onToggleThread(item.item_id)}>
       {isToggled[item.item_id] ? 'Hide thread' : 'Show thread'}
       </button>
       
-      {isToggled[item.item_id] && <CommentsList comments={comments} currentUsername={currentUsername} itemId={item.item_id} handleDeleteComment={handleDeleteComment} />}
+      {isToggled[item.item_id] && <CommentsList comments={comments} currentUsername={currentUsername} itemId={item.item_id} handleDeleteComment={handleDeleteComment} isAdmin={isAdmin} />}
   
       <div className="add_comment">
           <input
@@ -213,21 +234,47 @@ export default function Items({ projectId, currentUsername }) {
   }
   
   
-  function CommentsList({comments, currentUsername, itemId, handleDeleteComment }) {
+  function CommentsList({comments, currentUsername, itemId, handleDeleteComment, isAdmin }) {
+    const [showCommentConfirmation,setShowCommentConfirmation] = useState(false);
+    const [commentToDelete,setCommentToDelete] = useState(null);
+
+    function askDeleteComment(commentId) {
+      setCommentToDelete(commentId);
+      setShowCommentConfirmation(true);
+    }
+
+    function confirmDelete() {
+      setShowCommentConfirmation(false);
+      handleDeleteComment(commentToDelete,itemId);
+    }
+
+    function cancelDelete() {
+      setCommentToDelete(null);
+      setShowCommentConfirmation(false);
+    }
     
     // Object.values will return an array from the object keys so that you can map over it
     return (
+      <>
       <div className="comments">
         {Object.values(comments).map((comment) => (
           <div className="comment" key={comment.id}>
             <div className="created_by">{comment.created_by}</div>
             <div className="text">{comment.text}</div>
             <div className="timestamp">{comment.timestamp}</div>
-            {comment.created_by === currentUsername && <button onClick={() => handleDeleteComment(comment.id,itemId)}>Delete</button> }
+            {(comment.created_by === currentUsername || isAdmin) && <button onClick={() => askDeleteComment(comment.id,itemId)}>Delete</button> }
             <hr />
            </div>
         ))}
       </div>
+      {showCommentConfirmation && (
+        <ConfirmationWindow
+          message="Are you sure you want to delete this comment ?"
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+        />
+      )}
+      </>
     );
   }
   

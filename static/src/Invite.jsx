@@ -2,7 +2,7 @@ import  React ,{ useEffect, useState, useRef } from 'react'
 
 import Cookies from 'js-cookie';
 
-export default function Invite({projectId}) {
+export default function Invite({ projectId, isAdmin }) {
     const [invited,setInvited] = useState('');
     const [message,setMessage] = useState('');
 
