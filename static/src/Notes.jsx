@@ -1,6 +1,7 @@
 import  React ,{ useEffect, useState, useRef } from 'react'
 import Cookies from 'js-cookie';
 import ConfirmationWindow from './ConfirmationWindow.jsx'
+import './Notes.css'
 
 export default function Notes({projectId, currentUsername, isAdmin}) {
     const [newNoteInput, setNewNoteInput] = useState('');
@@ -71,8 +72,15 @@ export default function Notes({projectId, currentUsername, isAdmin}) {
 
     return (
         <>
-        <NewNote handleNewNote={handleNewNote} newNoteInput={newNoteInput} onNewNoteChange={handleNewNoteChange} projectId={projectId} />
-        <NotesList notes={notes} handleDeleteNote={handleDeleteNote} currentUsername={currentUsername} isAdmin={isAdmin} />
+        <div className="notes-container">
+            <div className="new-note-div">
+                <NewNote handleNewNote={handleNewNote} newNoteInput={newNoteInput} onNewNoteChange={handleNewNoteChange} projectId={projectId} />
+            </div>
+            <div className="notes">
+                <NotesList notes={notes} handleDeleteNote={handleDeleteNote} currentUsername={currentUsername} isAdmin={isAdmin} />  
+            </div>       
+        </div>
+        
         </>
     )
 }
@@ -80,10 +88,12 @@ export default function Notes({projectId, currentUsername, isAdmin}) {
 
 function NewNote({handleNewNote, projectId, newNoteInput, onNewNoteChange}) {
     return (
-        <div className="new-note-div">
-            <input type="text" onChange={(e) => onNewNoteChange(e.target.value)} placeholder="Write your note down" value={newNoteInput} />
-            <button onClick={handleNewNote}>Create Note</button>
-        </div>
+        <>
+            <textarea type="text" className="note-textarea" onChange={(e) => onNewNoteChange(e.target.value)} placeholder="Write your note down" value={newNoteInput} />
+            <div className="new-note-button-div">
+                <button className="new-note-button" onClick={handleNewNote}>Add Note</button>
+            </div>
+        </>
     )
 }
 
@@ -107,13 +117,14 @@ function NotesList({notes, currentUsername, handleDeleteNote, isAdmin}) {
     }
 
     return (
-        <div className="notes">
+        <>
             {notes.map((note) => (
                 <div key={note.id} className="note">
+                    {(note.created_by === currentUsername || isAdmin) && <button className="delete-note" onClick={() => askDeleteNote(note.id)}>X</button>}
                     <div className="note-creator">{note.created_by}</div>
-                    <div className="note-content">{note.content}</div>
                     <div className="note-timestamp">{note.timestamp}</div>
-                    {(note.created_by === currentUsername || isAdmin) && <button onClick={() => askDeleteNote(note.id)}>Delete</button>}
+                    <div className="note-content">{note.content}</div>
+                    
                 </div>
             ))}
 
@@ -124,7 +135,7 @@ function NotesList({notes, currentUsername, handleDeleteNote, isAdmin}) {
                     onCancel={cancelDelete}
                 />
             )}
-        </div>
+        </>
     )
 }
 

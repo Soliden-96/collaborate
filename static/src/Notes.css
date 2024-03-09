@@ -1,0 +1,107 @@
+.notes-container {
+    display:flex;
+    gap:10vh;
+}
+
+.new-note-div {
+    flex-grow:1;
+    height: 15rem;
+}
+
+.notes {
+    flex-grow:2;
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    gap: 10vh;
+}
+
+.note {
+    background-color: #f0ffb2; /* Post-it color */
+    padding: 20px;
+    border-radius: 5px;
+    border: 1px solid rgb(0, 0, 0);
+    box-shadow : 0 4px 6px rgb(63, 63, 63); /* Add a subtle shadow */
+    max-width:15rem;
+    max-height:18rem;
+    overflow-y: scroll;
+  }
+
+.note::-webkit-scrollbar {
+    width: 3px;;
+}
+
+.note::-webkit-scrollbar-track {
+    border-radius:8px;
+    background-color: #e7e7e7;
+    border: 1px solid #cacaca;
+}
+
+.note::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    background-color: #8e8d8d;
+}
+
+.note-creator {
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+  
+.note-content {
+    margin-bottom: 12px;
+}
+  
+.note-timestamp {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 8px;
+}
+  
+.delete-note {
+    position:relative;
+    float:right;
+    background-color: #ff6666; /* Delete button color */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width:16px;
+    height: 16px;
+    font-size:8px;
+    font-weight: bold;
+}
+  
+.delete-note:hover {
+    background-color: #ff4d4d; /* Change color on hover */
+}
+
+.new-note-div textarea {
+    width: 100%;
+    height: 200px; /* Increase the height as needed */
+    resize: vertical; /* Allow vertical resizing */
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.new-note-button-div {
+    text-align: center;
+}
+
+.new-note-button {
+    width: 40%;
+    padding: 12px 20px;
+    background-color: #4CAF50; /* Green */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.new-note-button:hover {
+    background-color: #45a049; /* Darker green */
+}
