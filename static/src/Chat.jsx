@@ -1,8 +1,21 @@
 import  React ,{ useEffect, useState, useRef } from 'react'
+import Cookies from 'js-cookie'
+import './Chat.css'
 
-import Cookies from 'js-cookie'; 
+export default function Chat({ projectId, currentUsername }) {
+    const [isToggled,setIsToggled] = useState(false);
 
-export default function Chat({projectId}) {
+    return (
+        <div className="chat-container">
+            <button onClick={() => setIsToggled(!isToggled)} className="chat-button">Chat</button>
+            <div className="chat-popup">
+                {isToggled && <ChatBox projectId={projectId} currentUsername={currentUsername} />}
+            </div>
+        </div>
+    )
+}
+
+function ChatBox({ projectId, currentUsername }) {
     const [chatLog,setChatLog] = useState([]);
     const [messageInput,setMessageInput] = useState('');
     const chatSocketRef = useRef(null);
@@ -16,7 +29,7 @@ export default function Chat({projectId}) {
             + projectId
             + '/'
         );
-
+ 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
 
@@ -72,12 +85,14 @@ export default function Chat({projectId}) {
     }
 
     return (
-        <div>
+        <>
             <div className="chat-log">{chatLog}</div>
             <br />
-            <input type="text" value={messageInput} onChange={(e) => setMessageInput(e.target.value)} />
-            <br />
-            <button onClick={handleSendMessage}>Send</button>
-        </div>
+            <div className="chat-form">
+                <input type="text" value={messageInput} onChange={(e) => setMessageInput(e.target.value)} />
+                <br />
+                <button onClick={handleSendMessage}>Send</button>
+            </div>
+        </>
     )
 }

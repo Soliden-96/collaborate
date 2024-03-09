@@ -15,7 +15,6 @@ const currentUsername = document.querySelector('#project-info').dataset.username
 const isAdmin = (document.querySelector('#project-info').dataset.is_admin) ==="True";
 const tools = {
         'Invite':{'name':'Invite','component':Invite},
-        'Chat':{'name':'Chat','component':Chat},
         'Items':{'name':'Items','component':Items},
         'FileRepo':{'name':'FileRepo','component':FileRepo},
         'Notes':{'name':'Notes','component':Notes},
@@ -48,6 +47,7 @@ export default function Project({}) {
         </div>
         </div>
       <Tool currentTool={currentTool} projectId={projectId} userId={userId} currentUsername={currentUsername} isAdmin={isAdmin} />
+      <Chat projectId={projectId} currentUsername={currentUsername} />
       </>
   )
 }

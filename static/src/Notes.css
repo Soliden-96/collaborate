@@ -29,7 +29,7 @@
   }
 
 .note::-webkit-scrollbar {
-    width: 3px;;
+    width: 3px;
 }
 
 .note::-webkit-scrollbar-track {
@@ -98,7 +98,7 @@
     color: white;
     border: none;
     border-radius: 5px;
-    cursor: pointer;
+    cursor: pointer; 
     font-size: 12px;
 }
 
