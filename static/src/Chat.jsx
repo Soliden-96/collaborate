@@ -8,9 +8,9 @@ export default function Chat({ projectId, currentUsername }) {
     return (
         <div className="chat-container">
             <button onClick={() => setIsToggled(!isToggled)} className="chat-button">Chat</button>
-            <div className="chat-popup">
-                {isToggled && <ChatBox projectId={projectId} currentUsername={currentUsername} />}
-            </div>
+            
+            {isToggled && <ChatBox projectId={projectId} currentUsername={currentUsername} />}
+            
         </div>
     )
 }
@@ -19,6 +19,8 @@ function ChatBox({ projectId, currentUsername }) {
     const [chatLog,setChatLog] = useState([]);
     const [messageInput,setMessageInput] = useState('');
     const chatSocketRef = useRef(null);
+    const messagesNumberRef = useRef(0);
+
 
     useEffect(() => {
 
@@ -34,28 +36,33 @@ function ChatBox({ projectId, currentUsername }) {
             const data = JSON.parse(e.data);
 
             if (data.type === 'chat_history') {
-                setChatLog(data.chat_history.map((message,index)=> 
-                <div key={index}>
-                    <div className="sender">{message.sender}</div>
-                    <div className="message">{message.message}</div>
-                    <div className="timestamp">{message.timestamp}</div>
-                    <hr />
+                setChatLog(chatLog => data.chat_history.map((message,index)=> 
+                <div key={message.id} className={message.sender===currentUsername ? "self" : "other"}>
+                    <div className="bubble">
+                        <div className="sender">{message.sender}</div>
+                        <div className="message">{message.message}</div>
+                        <div className="timestamp">{message.timestamp}</div>
+                    </div>
                 </div>
                 ).reverse());
+                messagesNumberRef.current = data.chat_history.length;
             } else {
             // Functional version is better for asynchronous environment, instead of  
             // updating like setChatLog(nextChatLog)
             setChatLog(chatLog => [
                 ...chatLog, 
                 (
-                    <div key={chatLog.length}>
-                        <div className="sender">{data.sender}</div>
-                        <div className="message">{data.message}</div>
-                        <div className="timestamp">{data.timestamp}</div>
-                        <hr />
+                    <div key={data.message.id} className={data.message.sender===currentUsername ? "self" : "other"}>
+                        <div className="bubble">
+                            <div className="sender">{data.message.sender}</div>
+                            <div className="message">{data.message.message}</div>
+                            <div className="timestamp">{data.message.timestamp}</div>
+                        </div>
                     </div>
                 )]
             );
+            messagesNumberRef.current++;
+
             }
         };
         
@@ -70,12 +77,53 @@ function ChatBox({ projectId, currentUsername }) {
         };
 
         chatSocketRef.current = chatSocket;
-        //Pros and cons of closing when exiting chat tool to evaluate
+
+        const chatLogElement = document.querySelector('#chat-log');
+        chatLogElement.addEventListener('scroll',() => handleScroll(chatLogElement));
+
         return () => {
+            chatLogElement.removeEventListener('scroll',handleScroll);
             chatSocketRef.current.close();
         };
 
     },[projectId]);
+
+    function handleScroll(chatLogElement) {
+            if (chatLogElement.scrollTop == 0) {
+                loadMoreMessages();
+            }
+        }
+
+    function loadMoreMessages() {
+        if (messagesNumberRef.current >= 10) {
+            const start = messagesNumberRef.current +1;
+            const end = messagesNumberRef.current +10;
+            console.log("start" + start);
+            console.log("end" + end)
+            fetch(`/get_more_messages/${start}/${end}/${projectId}`)
+            .then(response => response.json())
+            .then(data => {
+                data.messages.forEach(message => 
+                    setChatLog(chatLog => [ 
+                        (
+                            <div key={message.id} className={message.sender===currentUsername ? "self" : "other"}>
+                                <div className="bubble">
+                                    <div className="sender">{message.sender}</div>
+                                    <div className="message">{message.message}</div>
+                                    <div className="timestamp">{message.timestamp}</div>
+                                </div>
+                            </div>
+                        ),
+                        ...chatLog,
+                        ]
+                    )
+                    );
+                messagesNumberRef.current += 10;
+            })
+        }
+    }
+
+     
 
     function handleSendMessage() {
         chatSocketRef.current.send(JSON.stringify({
@@ -86,13 +134,14 @@ function ChatBox({ projectId, currentUsername }) {
 
     return (
         <>
-            <div className="chat-log">{chatLog}</div>
-            <br />
+        <div className="chat-popup">
+            <div id="chat-log">{chatLog}</div>
             <div className="chat-form">
-                <input type="text" value={messageInput} onChange={(e) => setMessageInput(e.target.value)} />
-                <br />
-                <button onClick={handleSendMessage}>Send</button>
+                <textarea value={messageInput} onChange={(e) => setMessageInput(e.target.value)} />
+                <button className="send-button" onClick={handleSendMessage}>S</button>
             </div>
+        </div>
+        <div>messages {messagesNumberRef.current}</div>
         </>
     )
 }

@@ -27,12 +27,13 @@ class Invitation(models.Model):
 
 class ChatMessage(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
-    room_id = models.IntegerField()
+    room_id = models.IntegerField()   # Is the same as project id
     message = models.TextField(max_length=64)
     timestamp = models.DateTimeField()
 
     def serialize(self):
         return {
+            'id':self.pk,
             'sender':self.sender.username,
             'room_id':self.room_id,
             'message':self.message,

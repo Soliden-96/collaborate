@@ -48,19 +48,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
         
         await self.save_message(chat_message)
 
+        new_message = chat_message.serialize()
+
         # Send message to room group
         await self.channel_layer.group_send(
-            self.room_group_name, {"type":"chat.message","message":message,"sender":sender.username, "timestamp":timestamp.strftime("%b %d %Y, %I:%M %p")}
+            self.room_group_name, {"type":"chat.message","message":new_message}
         )
 
    # Receive message from room group
     async def chat_message(self, event):
         message = event["message"]
-        sender =  event.get('sender','')
-        timestamp = event.get('timestamp')
 
         # Send message to WebSocket 
-        await self.send(text_data=json.dumps({"type":"message", "message": message, "sender":sender, "timestamp":timestamp}))
+        await self.send(text_data=json.dumps({"type":"message", "message": message}))
 
     @database_sync_to_async
     def save_message(self,chat_message):
@@ -202,14 +202,14 @@ class ExcalidrawConsumer(AsyncWebsocketConsumer):
                     "user_id":user_id
                 }
             )
-        elif message == 'sending_files':
+        elif message == 'sending_files': 
             user_id = text_data_json.get('user_id')
             excalidraw_files = text_data_json.get('excalidraw_files')
 
             await self.update_whiteboard_files(self.room_name,excalidraw_files)
             
 
-            # Send message to group
+            # Send message to group 
 
             await self.channel_layer.group_send(
                 self.room_group_name, {

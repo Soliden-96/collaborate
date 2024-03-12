@@ -149,9 +149,20 @@ def invitation_denied(request,invitation_id):
     return HttpResponseRedirect(reverse("profile"))
 
 
+def get_more_messages(request,start,end,project_id):
+    if request.method != "GET":
+        return JsonResponse({"message":"Invalid request"},status=400)
+
+    messages_query = ChatMessage.objects.filter(room_id=project_id).order_by("-timestamp")[start:end + 1]
+    messages = [message.serialize() for message in messages_query]
+
+    return JsonResponse({"messages":messages},status=200)
+
+
+
 def upload_file(request):
     if request.method != "POST":
-        return JsonResponse({"message":"Invalid Request"},status=400)
+        return JsonResponse({"message":"Invalid request"},status=400)
     
     uploaded_file = request.FILES.get('uploaded_file','')
     name = request.POST.get('file_name','')
