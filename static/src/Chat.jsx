@@ -20,9 +20,13 @@ function ChatBox({ projectId, currentUsername }) {
     const [messageInput,setMessageInput] = useState('');
     const chatSocketRef = useRef(null);
     const messagesNumberRef = useRef(0);
+    const heightRef = useRef(null);
 
 
     useEffect(() => {
+        const chatLogElement = document.querySelector('#chat-log');
+        chatLogElement.addEventListener('scroll',() => handleScroll(chatLogElement));
+        heightRef.current = chatLogElement.scrollHeight;
 
         const chatSocket = new WebSocket(
             'ws://'
@@ -37,32 +41,39 @@ function ChatBox({ projectId, currentUsername }) {
 
             if (data.type === 'chat_history') {
                 setChatLog(chatLog => data.chat_history.map((message,index)=> 
-                <div key={message.id} className={message.sender===currentUsername ? "self" : "other"}>
+                <li key={message.id} className={message.sender===currentUsername ? "self" : "other"}>
                     <div className="bubble">
                         <div className="sender">{message.sender}</div>
                         <div className="message">{message.message}</div>
                         <div className="timestamp">{message.timestamp}</div>
                     </div>
-                </div>
+                </li>
                 ).reverse());
                 messagesNumberRef.current = data.chat_history.length;
+                setTimeout(() => {
+                    const height = chatLogElement.scrollHeight;
+                    chatLogElement.scrollTop = height; 
+                },0);
             } else {
             // Functional version is better for asynchronous environment, instead of  
             // updating like setChatLog(nextChatLog)
             setChatLog(chatLog => [
                 ...chatLog, 
                 (
-                    <div key={data.message.id} className={data.message.sender===currentUsername ? "self" : "other"}>
+                    <li key={data.message.id} className={data.message.sender===currentUsername ? "self" : "other"}>
                         <div className="bubble">
                             <div className="sender">{data.message.sender}</div>
                             <div className="message">{data.message.message}</div>
                             <div className="timestamp">{data.message.timestamp}</div>
                         </div>
-                    </div>
+                    </li>
                 )]
             );
             messagesNumberRef.current++;
-
+            setTimeout(() => {
+                const height = chatLogElement.scrollHeight;
+                chatLogElement.scrollTop = height; 
+            },0);
             }
         };
         
@@ -78,9 +89,6 @@ function ChatBox({ projectId, currentUsername }) {
 
         chatSocketRef.current = chatSocket;
 
-        const chatLogElement = document.querySelector('#chat-log');
-        chatLogElement.addEventListener('scroll',() => handleScroll(chatLogElement));
-
         return () => {
             chatLogElement.removeEventListener('scroll',handleScroll);
             chatSocketRef.current.close();
@@ -90,11 +98,12 @@ function ChatBox({ projectId, currentUsername }) {
 
     function handleScroll(chatLogElement) {
             if (chatLogElement.scrollTop == 0) {
-                loadMoreMessages();
+                loadMoreMessages(chatLogElement);
             }
         }
 
-    function loadMoreMessages() {
+    function loadMoreMessages(chatLogElement) {
+        const height = chatLogElement.scrollHeight;
         if (messagesNumberRef.current >= 10) {
             const start = messagesNumberRef.current +1;
             const end = messagesNumberRef.current +10;
@@ -106,19 +115,23 @@ function ChatBox({ projectId, currentUsername }) {
                 data.messages.forEach(message => 
                     setChatLog(chatLog => [ 
                         (
-                            <div key={message.id} className={message.sender===currentUsername ? "self" : "other"}>
+                            <li key={message.id} className={message.sender===currentUsername ? "self" : "other"}>
                                 <div className="bubble">
                                     <div className="sender">{message.sender}</div>
                                     <div className="message">{message.message}</div>
                                     <div className="timestamp">{message.timestamp}</div>
                                 </div>
-                            </div>
+                            </li>
                         ),
                         ...chatLog,
                         ]
                     )
                     );
                 messagesNumberRef.current += 10;
+                setTimeout(() => {
+                    const newHeight = chatLogElement.scrollHeight;
+                    chatLogElement.scrollTop = newHeight - height;
+                });
             })
         }
     }
@@ -138,10 +151,9 @@ function ChatBox({ projectId, currentUsername }) {
             <div id="chat-log">{chatLog}</div>
             <div className="chat-form">
                 <textarea value={messageInput} onChange={(e) => setMessageInput(e.target.value)} />
-                <button className="send-button" onClick={handleSendMessage}>S</button>
+                <button className="send-button" onClick={handleSendMessage}>&#10148;</button>
             </div>
         </div>
-        <div>messages {messagesNumberRef.current}</div>
         </>
     )
 }
