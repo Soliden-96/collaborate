@@ -123,22 +123,6 @@ class ExcalidrawInstance(models.Model):
             "created_by":self.created_by.username
         }
 
-class ExcalidrawFile(models.Model):
-    related_whiteboard = models.ForeignKey(ExcalidrawInstance, on_delete=models.CASCADE, related_name="whiteboard_files")
-    mimeType = models.CharField(max_length=100)
-    file_id = models.CharField(max_length=100)
-    dataURL = models.TextField()  # Storing the Base64 encoded data URL
-    created = models.BigIntegerField()
-    lastRetrieved = models.BigIntegerField()
-
-    def serialize(self):
-        return {
-            "mimeType":self.mimeType,
-            "id":self.file_id,        # Serializing file_id as file
-            "dataURL":self.dataURL,
-            "created":self.created,
-            "lastRetrieved":self.lastRetrieved
-        }
 
 
 

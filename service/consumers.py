@@ -2,7 +2,7 @@ import json
 from channels.generic.websocket import WebsocketConsumer, AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from asgiref.sync import async_to_sync
-from .models import ChatMessage, Project, Item, Comment, Note, ExcalidrawInstance, ExcalidrawFile
+from .models import ChatMessage, Project, Item, Comment, Note, ExcalidrawInstance
 from django.utils import timezone
 
 # SECURITY , ESPECIALLY CSRF TD
@@ -202,22 +202,6 @@ class ExcalidrawConsumer(AsyncWebsocketConsumer):
                     "user_id":user_id
                 }
             )
-        elif message == 'sending_files': 
-            user_id = text_data_json.get('user_id')
-            excalidraw_files = text_data_json.get('excalidraw_files')
-
-            await self.update_whiteboard_files(self.room_name,excalidraw_files)
-            
-
-            # Send message to group 
-
-            await self.channel_layer.group_send(
-                self.room_group_name, {
-                    "type":"update.files",
-                    "excalidraw_files":excalidraw_files,
-                    "user_id":user_id
-                }
-            )
 
  
     async def update_elements(self,event):
@@ -225,45 +209,13 @@ class ExcalidrawConsumer(AsyncWebsocketConsumer):
         user_id = event["user_id"]
         await self.send(text_data=json.dumps({"type":"update_elements","excalidraw_elements":excalidraw_elements,"user_id":user_id}))
 
-    async def update_files(self,event):
-        excalidraw_files = event["excalidraw_files"]
-        user_id = event["user_id"]
-        await self.send(text_data=json.dumps({"type":"update_files","excalidraw_files":excalidraw_files,"user_id":user_id}))
 
-    
     @database_sync_to_async
     def update_whiteboard(self,whiteboard_id,excalidraw_elements):
         current_whiteboard = ExcalidrawInstance.objects.get(pk=whiteboard_id)
         current_whiteboard.elements = excalidraw_elements
         current_whiteboard.save()
         return
-
-    @database_sync_to_async
-    def update_whiteboard_files(self,whiteboard_id,excalidraw_files):
-        current_whiteboard = ExcalidrawInstance.objects.get(pk=whiteboard_id)
-        # Item returns a list with the key and value pairs as tuples
-        for file_id, file_data in excalidraw_files.items():
-        # Check if the file already exists in the database
-            excalidraw_file = ExcalidrawFile.objects.filter(
-                related_whiteboard=current_whiteboard,file_id=file_id
-            ).first()
-
-            if excalidraw_file:
-                # If the file exists, update only the lastRetrieved field
-                excalidraw_file.lastRetrieved = file_data["lastRetrieved"]
-                excalidraw_file.save()
-            else:
-                # If the file doesn't exist, create a new record
-                ExcalidrawFile.objects.create(
-                    related_whiteboard=current_whiteboard,
-                    file_id=file_id,
-                    mimeType=file_data["mimeType"],
-                    dataURL=file_data["dataURL"],
-                    created=file_data["created"],
-                    lastRetrieved=file_data["lastRetrieved"]
-                )
-        return
-
 
 
 class ItemConsumer(AsyncWebsocketConsumer):
