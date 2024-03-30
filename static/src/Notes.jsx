@@ -4,8 +4,8 @@ import ConfirmationWindow from './ConfirmationWindow.jsx'
 import './Notes.css'
 
 export default function Notes({projectId, currentUsername, isAdmin}) {
-    const [newNoteInput, setNewNoteInput] = useState('');
     const [notes, setNotes] = useState([]);
+    const [showNewNoteModal,setShowNewNoteModal] = useState(false);
     const notesSocketRef = useRef(null);
 
     useEffect(() => {
@@ -49,17 +49,14 @@ export default function Notes({projectId, currentUsername, isAdmin}) {
         }
     },[projectId]);
 
-    function handleNewNoteChange(value) {
-        setNewNoteInput(value);
-    }
 
-    function handleNewNote() {
+    function handleNewNote(content) {
         notesSocketRef.current.send(JSON.stringify({
             'type': 'new_note',
-            'content':newNoteInput,
+            'content':content,
             'project_id':projectId
         }));
-        setNewNoteInput('');
+        setShowNewNoteModal(false);
     }
 
     function handleDeleteNote(noteId) {
@@ -70,29 +67,42 @@ export default function Notes({projectId, currentUsername, isAdmin}) {
         }));
     }
 
+    function hideNewNoteModal() {
+        setShowNewNoteModal(false);
+    }
+
     return (
         <>
+        <div className="new-note-button-div">
+            <button className="new-note-button" onClick={() => setShowNewNoteModal(!showNewNoteModal)}>New Note</button>
+        </div>
         <div className="notes-container">
-            <div className="new-note-div">
-                <NewNote handleNewNote={handleNewNote} newNoteInput={newNoteInput} onNewNoteChange={handleNewNoteChange} projectId={projectId} />
-            </div>
             <div className="notes">
                 <NotesList notes={notes} handleDeleteNote={handleDeleteNote} currentUsername={currentUsername} isAdmin={isAdmin} />  
             </div>       
         </div>
-        
+        {showNewNoteModal && <NewNoteModal hideNewNoteModal={hideNewNoteModal} handleNewNote={handleNewNote}   projectId={projectId} />}
         </>
     )
 }
 
 
-function NewNote({handleNewNote, projectId, newNoteInput, onNewNoteChange}) {
+function NewNoteModal({handleNewNote, projectId, hideNewNoteModal}) {
+    const [newNoteInput,setNewNoteInput] = useState('');
+
+    function confirmNewNote(input) {
+        handleNewNote(input);
+        setNewNoteInput('');
+    }
     return (
         <>
-            <textarea type="text" className="note-textarea" onChange={(e) => onNewNoteChange(e.target.value)} placeholder="Write your note down" value={newNoteInput} />
-            <div className="new-note-button-div">
-                <button className="new-note-button" onClick={handleNewNote}>Add Note</button>
+        <div className="new-note-modal">
+            <textarea type="text" autoFocus className="note-textarea" onChange={(e) => setNewNoteInput(e.target.value)} placeholder="Write your note down" value={newNoteInput} />
+            <div className="note-modal-buttons">
+                <button className="confirm-note-button" onClick={() => confirmNewNote(newNoteInput)}>&#10004;</button>
+                <button className="cancel-new-note" onClick={hideNewNoteModal}>X</button>
             </div>
+        </div>
         </>
     )
 }

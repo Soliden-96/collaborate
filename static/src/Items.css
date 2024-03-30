@@ -1,0 +1,210 @@
+.new-item-modal {
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform: translate(-50%,-50%);
+    z-index: 9999;
+    border:solid 1px blue;
+    background-color: #f6f8fa;
+    height:20rem;
+    width:50rem;
+    border-radius:8px;
+}
+
+.item-title-input {
+    margin-top: 0.5rem;
+    margin-bottom:1rem;
+    height:1.5rem;
+}
+
+.item-title-input input {
+    border:none;
+    background-color: #f6f8fa;
+    width:99%
+}
+
+.item-title-input input:focus {
+    outline:none;
+}
+
+.item-description-input {
+    height:70%;
+}
+
+.item-description-input textarea {
+    border:none;
+    background-color: #f6f8fa;
+    height:100%;
+    width:99%;
+}
+
+.item-description-input textarea:focus {
+    outline: none;
+}
+
+.item-description-input textarea::-webkit-scrollbar {
+    width: 3px;
+}
+
+.item-description-input textarea::-webkit-scrollbar-track {
+    border-radius:8px;
+    background-color: #e7e7e7;
+    border: 1px solid #cacaca;
+}
+
+.item-description-input textarea::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    background-color: #8e8d8d;
+}
+
+.item-modal-buttons {
+    background-color: #f6f8fa;
+}
+
+.item-modal-buttons button {
+    margin-left:10px;
+    margin-right: 10px;
+    margin-bottom:4px;
+    border-radius:100%;
+    border: none;
+    height:30px;
+    width:30px;
+}
+
+.confirm-item-button {
+    background-color:  #3ed63e;
+    color: white;
+    font-weight:bold;
+    font-size:14px;
+}
+
+.confirm-item-button:hover {
+    background-color: #72f772;
+    cursor: pointer;
+}
+
+.cancel-item-button {
+    background-color: #ff4d4d;
+    color:white;
+    font-weight: bold;
+    font-size:14px;
+}
+
+.cancel-item-button:hover {
+    background-color: #ff6666;
+    cursor: pointer;
+}
+
+.items {
+    border: 1px solid rgb(158, 158, 248);
+    border-radius:7px;
+    margin-left:20vh;
+    margin-right: 20vh;
+    padding-left: 5vh;
+}
+
+.item {
+    margin-top:20px;
+}
+
+.item .title {
+    font-weight:bold;
+    font-size:22px;
+    margin-bottom:2px;
+}
+
+.item .description {
+    white-space: pre-line;
+}
+
+.item .timestamp span {
+    font-weight: bold;
+    font-size:14px;
+}
+
+.delete-item {
+    position:relative;
+    float:right;
+    background-color: #ff6666; /* Delete button color */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width:16px;
+    height: 16px;
+    font-size:8px;
+    font-weight: bold;
+    margin-top:1vh;
+    margin-right: 3vh;
+}
+
+.toggle-comments {
+    font-size:12px;
+    border:none;
+    background: none;
+    height:22px;
+    width:22px;
+    text-align:center;
+    transform-origin: center;
+    transition-duration: 0.2s;
+}
+
+.toggle-comments.thread-shown {
+    transform: rotate(90deg);
+    vertical-align: center;
+}
+
+.comment {
+    border: none;
+    border-top: 1px solid #ccc; /* Adjust the color to your preference */
+    margin-top: 10px;
+    margin-right:6vh;
+    padding-top:4px;
+}
+
+.comment .text {
+    white-space: pre-line;
+}
+
+
+.comment .created_by {
+    font-weight: bold;
+}
+
+.delete-comment {
+    position:relative;
+    float:right;
+    background:none; /* Delete button color */
+    color: red;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width:16px;
+    height: 16px;
+    font-size:12px;
+    font-weight: bold;
+    margin-top:1vh;
+    margin-right: 9vh;
+}
+
+.add-comment {
+    margin-bottom:10px;
+    margin-top:5px;
+    height:60px;
+}
+
+.add-comment textarea {
+    width:50vw;
+    height:100%;
+}
+
+.add-comment button {
+    display:inline-block;
+    vertical-align: top;
+    margin-top:4px;
+    margin-left:3px;
+    border-radius: 10px;
+    border:1px solid rgb(158, 158, 248);
+    background-color: rgb(228, 228, 254);
+}
+

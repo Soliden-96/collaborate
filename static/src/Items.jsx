@@ -1,14 +1,14 @@
 import  React ,{ useEffect, useState, useRef } from 'react'
 import Cookies from 'js-cookie';
 import ConfirmationWindow from './ConfirmationWindow';
+import "./Items.css";
 
 export default function Items({ projectId, currentUsername, isAdmin }) {
-    const [itemTitle, setItemTitle] = useState('');
-    const [descriptionInput, setDescriptionInput] = useState('');
     const [items, setItems] = useState([]);
     const [comments, setComments] = useState({});
     const [newCommentText, setNewCommentText] = useState({});
     const [isToggled, setIsToggled] = useState({});
+    const [showItemModal,setShowItemModal] = useState(false);
     const itemSocketRef = useRef(null);
   
     useEffect(() => {
@@ -77,18 +77,17 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
       };
     }, [projectId]);
   
-    function handleCreateItem() {
+    function handleCreateItem(title,description) {
       console.log('sending item');
       // Handle item creation...
       
       itemSocketRef.current.send(JSON.stringify({
           'type':'item',
           'action':'create',
-          'title':itemTitle,
-          'description':descriptionInput,
+          'title':title,
+          'description':description,
       }));
-      setItemTitle('');
-      setDescriptionInput('');
+      setShowItemModal(false);
       console.log('item sent');
     };
   
@@ -146,24 +145,17 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
         'comment_id': comment_id
       }));
     }
+
+    function closeItemModal() {
+      setShowItemModal(!showItemModal);
+    }
   
     return (
       <>
-        <input
-          type="text"
-          placeholder="Item Title"
-          value={itemTitle}
-          onChange={(e) => setItemTitle(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Description"
-          value={descriptionInput}
-          onChange={(e) => setDescriptionInput(e.target.value)}
-        />
-        <button onClick={handleCreateItem}>Create Item</button>
+        <button onClick={() => setShowItemModal(!showItemModal)}>Create Item</button>
+        {showItemModal && <NewItemModal handleCreateItem={handleCreateItem} closeItemModal={closeItemModal} />}
         <div className="items">
-          {items.map((item) => (
+          {items.map((item) => ( 
             <Item
               key={item.item_id}
               item={item}
@@ -183,6 +175,36 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
       </>
     );
   }
+
+  function NewItemModal({handleCreateItem, closeItemModal}) {
+    const [itemTitle,setItemTitle] = useState('');
+    const [descriptionInput,setDescriptionInput] = useState('');
+    return (
+      <>
+      <div className="new-item-modal">
+        <div className="item-title-input">
+          <input
+            type="text"
+            placeholder="Item Title"
+            value={itemTitle}
+            onChange={(e) => setItemTitle(e.target.value)}
+          />
+        </div>
+        <div className="item-description-input">
+          <textarea
+            placeholder="Description"
+            value={descriptionInput}
+            onChange={(e) => setDescriptionInput(e.target.value)}
+          />
+        </div>
+        <div className="item-modal-buttons">
+          <button onClick={() => handleCreateItem(itemTitle,descriptionInput)} className="confirm-item-button">&#10004;</button>
+          <button onClick={closeItemModal} className="cancel-item-button">X</button>
+        </div>
+      </div>  
+      </>
+    )
+  }
   
   function Item({item,comments,newCommentText,onToggleThread,onAddComment,onNewCommentChange,isToggled,currentUsername,handleDeleteItem,handleDeleteComment,isAdmin}) {
     const [showItemConfirmation,setShowItemConfirmation] = useState(false);
@@ -198,12 +220,11 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
 
     return (
       <>
-      <div key={item.item_id}>
-        <div className="created_by">{item.created_by}</div>
+      <div className="item" key={item.item_id}>
+        {(item.created_by === currentUsername || isAdmin) && <button className="delete-item" onClick={() => setShowItemConfirmation(true)}>X</button>}
         <div className="title">{item.title}</div>
         <div className="description">{item.description}</div>
-        <div className="timestamp">{item.timestamp}</div>
-        {(item.created_by === currentUsername || isAdmin) && <button onClick={() => setShowItemConfirmation(true)}>Delete Item</button>}
+        <div className="timestamp">Item opened on {item.timestamp} by <span>{item.created_by}</span></div>
       </div>
 
       {showItemConfirmation && (
@@ -214,15 +235,14 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
         />
       )}
 
-      <button onClick={() => onToggleThread(item.item_id)}>
-      {isToggled[item.item_id] ? 'Hide thread' : 'Show thread'}
+      <button className={`toggle-comments ${isToggled[item.item_id] ? 'thread-shown' : 'thread-hidden'}`} onClick={() => onToggleThread(item.item_id)}>
+      &#10148;
       </button>
       
       {isToggled[item.item_id] && <CommentsList comments={comments} currentUsername={currentUsername} itemId={item.item_id} handleDeleteComment={handleDeleteComment} isAdmin={isAdmin} />}
   
-      <div className="add_comment">
-          <input
-            type="text"
+      <div className="add-comment">
+          <textarea
             placeholder="Comment"
             value={newCommentText[item.item_id] || ''}
             onChange={(e) => onNewCommentChange(item.item_id, e.target.value)}
@@ -259,11 +279,11 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
       <div className="comments">
         {Object.values(comments).map((comment) => (
           <div className="comment" key={comment.id}>
+            {(comment.created_by === currentUsername || isAdmin) && <button className="delete-comment" onClick={() => askDeleteComment(comment.id,itemId)}>X</button> }  
             <div className="created_by">{comment.created_by}</div>
             <div className="text">{comment.text}</div>
             <div className="timestamp">{comment.timestamp}</div>
-            {(comment.created_by === currentUsername || isAdmin) && <button onClick={() => askDeleteComment(comment.id,itemId)}>Delete</button> }
-            <hr />
+            
            </div>
         ))}
       </div>
