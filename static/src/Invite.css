@@ -1,0 +1,16 @@
+.invitation-page {
+    text-align: center;
+}
+
+.invitation-input {
+    display:block;
+    margin:6px auto; 
+}
+
+.message-color-red {
+    color:red;
+}
+
+.message-color-green {
+    color:green;
+}

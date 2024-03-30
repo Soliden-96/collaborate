@@ -90,7 +90,7 @@ def create_project(request):
 
     return HttpResponseRedirect(reverse("index"))
 
-
+@login_required
 def project(request,id):
     project = Project.objects.get(pk=id)
     if ProjectMembership.objects.filter(project=project,user=request.user,is_admin=True).exists():
@@ -99,6 +99,42 @@ def project(request,id):
         is_admin=False
     
     return render(request,"service/project.html",{"project":project,"is_admin":is_admin})
+
+
+@login_required
+def get_project_participants(request,project_id):
+    current_project = Project.objects.get(pk=project_id)
+    participants = {}
+    for participant in ProjectMembership.objects.filter(project=current_project):
+        if participant.user != request.user:
+            participants[participant.user.pk] = {
+                'id':participant.user.pk,
+                'name':participant.user.username,
+                'is_admin':participant.is_admin
+            }
+    
+    return JsonResponse({"participants":participants},status=200)
+
+
+@login_required
+def change_admin_condition(request):
+    if request.method != 'PUT':
+        return JsonResponse({"message":"Invalid request"},status=400)
+    
+    data = json.loads(request.body)
+    participant_id = data.get('participant_id')
+    project_id = data.get('project_id')
+    project = Project.objects.get(pk=project_id)
+
+    if not ProjectMembership.objects.filter(user=request.user,project=project,is_admin=True).exists():
+        return JsonResponse({"message":"You are not an admin on this project"},status=400)
+
+    participant_to_change = User.objects.get(pk=participant_id)
+    membership = ProjectMembership.objects.get(user=participant_to_change,project=project)
+    membership.is_admin = not membership.is_admin
+    membership.save()
+
+    return JsonResponse({"message":"Changed successfully"},status=200)
 
 
 @login_required
@@ -114,7 +150,7 @@ def send_invitation(request,projectId):
 
     receiver = User.objects.filter(username=invited_username).first()
     if receiver is None:
-        return JsonResponse({"message":"this user doesn't exist"},status=404)
+        return JsonResponse({"message":"This user doesn't exist"},status=404)
     
     if ProjectMembership.objects.filter(user=receiver,project_id=projectId).exists():
         return JsonResponse({"message":f"{invited_username} is already part of this project"},status=400)
@@ -146,7 +182,7 @@ def invitation_denied(request,invitation_id):
     invitation = get_object_or_404(Invitation, id=invitation_id, receiver=request.user)
     invitation.delete()
 
-    return HttpResponseRedirect(reverse("profile"))
+    return HttpResponseRedirect(reverse("index"))
 
 
 def get_more_messages(request,start,end,project_id):
