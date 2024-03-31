@@ -3,7 +3,7 @@ import  React ,{ useEffect, useState, useRef } from 'react'
 import Cookies from 'js-cookie';
 import './Invite.css';
 
-export default function Invite({ projectId, isAdmin }) {
+export default function Invite({ projectId, isAdmin, userId }) {
     const [invited,setInvited] = useState('');
     const [message,setMessage] = useState({});
     const [participants,setParticipants] = useState({});
@@ -80,9 +80,70 @@ export default function Invite({ projectId, isAdmin }) {
         })
     }
 
+    function removeFromProject(participantId) {
+        const csrfToken = Cookies.get('csrftoken');
+        fetch('/remove_from_project',{
+            method:'DELETE',
+            headers:{
+                'Content-Type':'application/json',
+                'X-CSRFToken':csrfToken
+            },
+            body:JSON.stringify({
+                'participant_id':participantId,
+                'project_id':projectId
+            })
+        })
+        .then(response => {
+            console.log(response);
+            if (response.ok) { return response.json() }
+        })
+        .then(result => {
+            if (result.message==='Project abandoned') {window.location.href="/"}
+            // Using destructuring to remove from an object
+            else {
+                setParticipants(prevParticipants => {
+                const {[participantId]:_, ...remainingParticipants} = prevParticipants;
+                return remainingParticipants
+                }
+            );
+            }
+        })
+        .catch(error => {
+            console.log(error);
+        });
+    }
+
+    function closeProject() {
+        const csrfToken = Cookies.get('csrftoken');
+        fetch('/close_project',{
+            method:'DELETE',
+            headers:{
+                "Content-Type":"application/json",
+                "X-CSRFToken":csrfToken
+            },
+            body:JSON.stringify({
+                'project_id':projectId
+            })
+        })
+        .then(response => {
+            if (response.ok) {window.location.href="/"}
+            return response.json()
+        })
+        .then(result => {
+            if (result.message) {console.log(result.message)}
+        })
+        .catch(error => {
+            console.log(error);
+        })
+    }
+
+    
+
     return (
         <>
         <div className="invitation-page">
+            <button onClick={() => removeFromProject(userId)} className="abandon-project-button">Abandon project</button>
+            {isAdmin && <button onClick={closeProject} className="close-project-button">Close Project</button>}
             <h4>Invite people to collaborate on your project</h4>
             {message && <p className={`message-color-${message.color}`}>{message.message}</p>}
             <form onSubmit={handleSubmit}>
@@ -105,6 +166,7 @@ export default function Invite({ projectId, isAdmin }) {
                         {participant.is_admin ? "Is an admin" : "Not an admin"}
                     </button>
                     )}
+                    {isAdmin && <button onClick={() => removeFromProject(participant.id)} className="remove-from-project-button">Remove from project</button>}
                 </div>
             ))}
         </div>

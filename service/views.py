@@ -138,6 +138,49 @@ def change_admin_condition(request):
 
 
 @login_required
+def remove_from_project(request):
+    if request.method != 'DELETE':
+        return JsonResponse({"message":"Invalid request"},status=400)
+
+    data = json.loads(request.body)
+    participant_id = data.get('participant_id')
+    project_id = data.get('project_id')
+    project = Project.objects.get(pk=project_id)
+
+    if participant_id == request.user.id:
+        membership = ProjectMembership.objects.get(user=request.user,project=project)
+        membership.delete()
+        return JsonResponse({"message":"Project abandoned"},status=200)
+
+    if not ProjectMembership.objects.filter(user=request.user,project=project,is_admin=True).exists():
+        return JsonResponse({"message":"You are not an admin on this project"},status=400)
+
+    participant_to_delete = User.objects.get(pk=participant_id)
+    membership = ProjectMembership.objects.get(user=participant_to_delete,project=project)
+    membership.delete()
+
+    return JsonResponse({"message":f"{participant_to_delete.username} has been deleted from the project"},status=200)
+
+
+@login_required
+def close_project(request):
+    if request.method != 'DELETE':
+        return JsonResponse({"message":"Invalid request"},status=400)
+
+    data = json.loads(request.body)
+    project_id = data.get('project_id')
+    project = Project.objects.get(pk=project_id)
+
+    if not ProjectMembership.objects.filter(user=request.user,project=project,is_admin=True).exists():
+        return JsonResponse({"message":"You are not an admin on this project"},status=400)
+
+    project.delete()
+
+    return JsonResponse({"message":f"{project.title} closed"},status=200)
+
+
+
+@login_required
 def send_invitation(request,projectId):
     if request.method != "POST":
         return JsonResponse({"message":"Invalid request"},status=400)
