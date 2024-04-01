@@ -18,6 +18,7 @@ urlpatterns = [
     path("invitation_accepted/<int:invitation_id>", views.invitation_accepted, name="invitation_accepted"),
     path("invitation_denied/<int:invitation_id>", views.invitation_denied, name="invitation_denied"),
     path("get_more_messages/<int:start>/<int:end>/<int:project_id>",views.get_more_messages, name="get_more_messages"),
+    path("edit_note", views.edit_note, name="edit_note"),
     path("upload_file", views.upload_file, name="upload_file"),
     path("get_project_files/<int:projectId>", views.get_project_files, name="get_project_files"),
     path("download_file/<int:project_id>/<int:file_id>", views.download_file, name="download_file"),

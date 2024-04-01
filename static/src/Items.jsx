@@ -9,6 +9,7 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
     const [newCommentText, setNewCommentText] = useState({});
     const [isToggled, setIsToggled] = useState({});
     const [showItemModal,setShowItemModal] = useState(false);
+    const [loading,setLoading] = useState(true);
     const itemSocketRef = useRef(null);
   
     useEffect(() => {
@@ -30,6 +31,7 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
             initialComments[item.item_id] = item.comments.reverse();
           })
           setComments(initialComments);
+          setLoading(false);
         
         } else if (data.type==='item') {
           if (data.action==='create') {
@@ -149,6 +151,10 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
     function closeItemModal() {
       setShowItemModal(!showItemModal);
     }
+
+    if (loading) {
+      return ( <div>Loading</div> )
+    } else {
   
     return (
       <>
@@ -174,7 +180,7 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
         </div>
       </>
     );
-  }
+  }}
 
   function NewItemModal({handleCreateItem, closeItemModal}) {
     const [itemTitle,setItemTitle] = useState('');

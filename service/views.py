@@ -238,6 +238,21 @@ def get_more_messages(request,start,end,project_id):
     return JsonResponse({"messages":messages},status=200)
 
 
+@login_required
+def edit_note(request):
+    if request.method != "PUT":
+        return JsonResponse({"message":"Invalid request"},status=400)
+    
+    data = json.loads(request.body)
+    note_id = data.get('note_id')
+    note_content = data.get('note_content')
+
+    note = Note.objects.get(pk=note_id)
+    note.content = note_content
+    note.save()
+
+    return JsonResponse({"success":True,"message":"Note edited successfully"},status=200)
+
 
 def upload_file(request):
     if request.method != "POST":

@@ -71,6 +71,35 @@ export default function Notes({projectId, currentUsername, isAdmin}) {
         setShowNewNoteModal(false);
     }
 
+    function editNote(noteId,noteContent) {
+        const csrfToken = Cookies.get('csrftoken');
+        fetch('/edit_note',{
+            method:'PUT',
+            headers:{
+                'Content-Type':"application/json",
+                'X-CSRFToken':csrfToken
+            },
+            body:JSON.stringify({
+                'note_id':noteId,
+                'note_content':noteContent
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                const newNotes = notes.map(note => {
+                    if (note.id===noteId) {note.content = noteContent}
+                    return note
+                });
+                setNotes(newNotes);
+            }
+        })
+        .catch(error => {
+            console.log(error);
+        })
+
+    }
+
     return (
         <>
         <div className="new-note-button-div">
@@ -78,7 +107,7 @@ export default function Notes({projectId, currentUsername, isAdmin}) {
         </div>
         <div className="notes-container">
             <div className="notes">
-                <NotesList notes={notes} handleDeleteNote={handleDeleteNote} currentUsername={currentUsername} isAdmin={isAdmin} />  
+                <NotesList notes={notes} handleDeleteNote={handleDeleteNote} currentUsername={currentUsername} isAdmin={isAdmin} editNote={editNote} />  
             </div>       
         </div>
         {showNewNoteModal && <NewNoteModal hideNewNoteModal={hideNewNoteModal} handleNewNote={handleNewNote}   projectId={projectId} />}
@@ -107,9 +136,12 @@ function NewNoteModal({handleNewNote, projectId, hideNewNoteModal}) {
     )
 }
 
-function NotesList({notes, currentUsername, handleDeleteNote, isAdmin}) { 
+function NotesList({notes, currentUsername, handleDeleteNote, isAdmin, projectId, editNote}) { 
     const [showConfirmation,setShowConfirmation] = useState(false);
     const [noteToDelete,setNoteToDelete] = useState(null);
+    const [editableContent,setEditableContent] = useState('');
+    const [editNoteId,setEditNoteId] = useState('');
+    const [showEditModal,setShowEditModal] = useState('');
 
     function askDeleteNote(noteId) {
         setNoteToDelete(noteId);
@@ -126,11 +158,27 @@ function NotesList({notes, currentUsername, handleDeleteNote, isAdmin}) {
         setNoteToDelete(null);
     }
 
+    function startEditNote(noteId,noteContent) {
+        setEditNoteId(noteId);
+        setEditableContent(noteContent);
+        setShowEditModal(true);
+    }
+
+    function hideEditNoteModal() {
+        setShowEditModal(false)
+    }
+
     return (
         <>
+        {showEditModal && <EditNoteModal projectId={projectId} editNoteId={editNoteId} hideEditNoteModal={hideEditNoteModal} editableContent={editableContent} editNote={editNote} />}
             {notes.map((note) => (
                 <div key={note.id} className="note">
-                    {(note.created_by === currentUsername || isAdmin) && <button className="delete-note" onClick={() => askDeleteNote(note.id)}>X</button>}
+                    {(note.created_by === currentUsername || isAdmin) && 
+                        <div className="note-options">
+                            <button className="delete-note" onClick={() => askDeleteNote(note.id)}>X</button>
+                            <button className="edit-button" onClick={() => startEditNote(note.id,note.content)}>&#9998;</button>
+                        </div>
+                    }
                     <div className="note-creator">{note.created_by}</div>
                     <div className="note-timestamp">{note.timestamp}</div>
                     <div className="note-content">{note.content}</div>
@@ -149,3 +197,23 @@ function NotesList({notes, currentUsername, handleDeleteNote, isAdmin}) {
     )
 }
 
+function EditNoteModal({ projectId, editNoteId, editableContent, hideEditNoteModal, editNote}) {
+    const [editNoteInput,setEditNoteInput] = useState(editableContent || '');
+    
+
+    function confirmEditNote(input) {
+        editNote(editNoteId,editNoteInput);
+        hideEditNoteModal();
+    }
+    return (
+        <>
+        <div className="new-note-modal">
+            <textarea type="text" autoFocus className="note-textarea" onChange={(e) => setEditNoteInput(e.target.value)} placeholder="Write your note down" value={editNoteInput} />
+            <div className="note-modal-buttons">
+                <button className="confirm-note-button" onClick={confirmEditNote}>&#10004;</button>
+                <button className="cancel-new-note" onClick={hideEditNoteModal}>X</button>
+            </div>
+        </div>
+        </>
+    )
+}

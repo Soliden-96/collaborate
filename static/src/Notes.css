@@ -61,6 +61,21 @@
     color: #666;
     margin-bottom: 8px;
 }
+
+.edit-button {
+    position:relative;
+    float:right;
+    background-color: #cad7ff; /* Delete button color */
+    color:black;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width:16px;
+    height: 16px;
+    font-size:10px;
+    font-weight: bold;
+    margin-right:6px;
+}
   
 .delete-note {
     position:relative;
