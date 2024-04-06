@@ -32,6 +32,7 @@ export default function Project({}) {
 
   return (
       <>
+      {isAdmin && <div>You are an admin on this project</div>}
         <div style={{ textAlign:'center' }}>
         <div className="menu-bar">
             {Object.keys(tools).map(tool => (

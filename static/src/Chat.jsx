@@ -13,7 +13,7 @@ export default function Chat({ projectId, currentUsername }) {
             
         </div>
     )
-}
+} 
 
 function ChatBox({ projectId, currentUsername }) {
     const [chatLog,setChatLog] = useState([]);
@@ -101,7 +101,7 @@ function ChatBox({ projectId, currentUsername }) {
                 loadMoreMessages(chatLogElement);
             }
         }
-
+        
     function loadMoreMessages(chatLogElement) {
         const height = chatLogElement.scrollHeight;
         if (messagesNumberRef.current >= 10) {
@@ -145,7 +145,7 @@ function ChatBox({ projectId, currentUsername }) {
         setMessageInput('');
     }
 
-    return (
+    return ( 
         <>
         <div className="chat-popup">
             <div id="chat-log">{chatLog}</div>

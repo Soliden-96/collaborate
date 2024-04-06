@@ -227,7 +227,7 @@ def invitation_denied(request,invitation_id):
 
     return HttpResponseRedirect(reverse("index"))
 
-
+@login_required
 def get_more_messages(request,start,end,project_id):
     if request.method != "GET":
         return JsonResponse({"message":"Invalid request"},status=400)
@@ -239,19 +239,15 @@ def get_more_messages(request,start,end,project_id):
 
 
 @login_required
-def edit_note(request):
-    if request.method != "PUT":
+def get_more_notes(request,start,end,project_id):
+    if request.method != "GET":
         return JsonResponse({"message":"Invalid request"},status=400)
-    
-    data = json.loads(request.body)
-    note_id = data.get('note_id')
-    note_content = data.get('note_content')
 
-    note = Note.objects.get(pk=note_id)
-    note.content = note_content
-    note.save()
+    current_project = Project.objects.get(pk=project_id)
+    notes_query = Note.objects.filter(project=current_project).order_by("-timestamp")[start:end +1]
+    notes = [note.serialize() for note in notes_query]
 
-    return JsonResponse({"success":True,"message":"Note edited successfully"},status=200)
+    return JsonResponse({"notes":notes},status=200)
 
 
 def upload_file(request):

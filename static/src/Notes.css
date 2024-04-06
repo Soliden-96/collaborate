@@ -21,13 +21,14 @@
 }
 
 .note {
-    background-color: #f0ffb2; /* Post-it color */
+    background-color: #f2ffbc; /* Post-it color */
     padding: 20px;
     border-radius: 5px;
     border: 1px solid rgb(0, 0, 0);
     box-shadow : 0 4px 6px rgb(63, 63, 63); /* Add a subtle shadow */
-    max-width:15rem;
-    max-height:18rem;
+    width:15rem;
+    min-height:10rem;
+    max-height:16rem;
     overflow-y: scroll;
   }
 
@@ -76,6 +77,10 @@
     font-weight: bold;
     margin-right:6px;
 }
+
+.edit-button:hover {
+    background-color: #aabefa;
+} 
   
 .delete-note {
     position:relative;

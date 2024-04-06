@@ -18,7 +18,7 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
         'ws://' + window.location.host + '/ws/items/' + projectId + '/'
       );
       console.log('connection created');
-  
+   
       itemSocket.onmessage = function (e) {
         console.log('Message received');
         const data = JSON.parse(e.data);

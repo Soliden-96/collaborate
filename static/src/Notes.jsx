@@ -6,9 +6,23 @@ import './Notes.css'
 export default function Notes({projectId, currentUsername, isAdmin}) {
     const [notes, setNotes] = useState([]);
     const [showNewNoteModal,setShowNewNoteModal] = useState(false);
+    const [isLoading,setIsLoading] = useState(false);
+    const [maxNotes,setMaxNotes] = useState(false);
     const notesSocketRef = useRef(null);
+    const notesNumberRef = useRef(0)
 
     useEffect(() => {
+        
+        // Logic for debouncing infinite scrolling
+        let timer;
+        const handleScroll = () => {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                handleWindowScroll();
+            },200);
+        }
+
+        window.addEventListener('scroll',handleScroll)
         
         const notesSocket = new WebSocket(
             'ws://'
@@ -16,20 +30,32 @@ export default function Notes({projectId, currentUsername, isAdmin}) {
             +'/ws/notes/'
             + projectId
             + '/'
-        );
+        ); 
 
         notesSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             console.log(data.type);
             if (data.type=='notes') {
-                setNotes(data.notes.reverse());
+                setNotes(data.notes);
+                notesNumberRef.current = data.notes.length;
             } else if (data.type=='new_note') {
                 setNotes((notes) => ([
                     data.new_note,
                     ...notes
-                ]))
+                ]));
+                notesNumberRef.current ++;
             } else if (data.type=='delete_note') {
                 setNotes(notes => notes.filter(n => n.id !== data.note_id));
+            } else if (data.type=='edit_note') {
+                setNotes(notes => notes.map((note) => {
+                    if (note.id===data.note_id) {
+                        return {
+                            ...note,
+                            content:data.content
+                        }
+                    }
+                    return note    
+                }));
             }
 
         };
@@ -45,11 +71,12 @@ export default function Notes({projectId, currentUsername, isAdmin}) {
         notesSocketRef.current = notesSocket;
 
         return () => {
+            window.removeEventListener('scroll',handleScroll);
             notesSocketRef.current.close();
         }
     },[projectId]);
 
-
+    
     function handleNewNote(content) {
         notesSocketRef.current.send(JSON.stringify({
             'type': 'new_note',
@@ -72,43 +99,61 @@ export default function Notes({projectId, currentUsername, isAdmin}) {
     }
 
     function editNote(noteId,noteContent) {
-        const csrfToken = Cookies.get('csrftoken');
-        fetch('/edit_note',{
-            method:'PUT',
-            headers:{
-                'Content-Type':"application/json",
-                'X-CSRFToken':csrfToken
-            },
-            body:JSON.stringify({
-                'note_id':noteId,
-                'note_content':noteContent
-            })
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                const newNotes = notes.map(note => {
-                    if (note.id===noteId) {note.content = noteContent}
-                    return note
-                });
-                setNotes(newNotes);
-            }
-        })
-        .catch(error => {
-            console.log(error);
-        })
-
+        notesSocketRef.current.send(JSON.stringify({
+            'type':'edit_note',
+            'note_id':noteId,
+            'content':noteContent
+        }));
+        
     }
+
+    function handleWindowScroll() {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight && !isLoading && !maxNotes) {
+            console.log('Bottom of the page');
+            setIsLoading(true);
+            loadMoreNotes();  
+        }
+    }
+    
+
+    function loadMoreNotes() {
+        if (notesNumberRef.current % 9 == 0 && notesNumberRef.current > 0 ){
+            const start = notesNumberRef.current + 1;
+            const end = notesNumberRef.current + 9;
+            console.log(start);
+            console.log(end);
+            fetch(`/get_more_notes/${start}/${end}/${projectId}`)
+            .then(response => response.json())
+            .then(data => {
+                    data.notes.forEach(note => {
+                        setNotes(notes => [
+                            ...notes,
+                            note,
+                        ]);
+                        console.log(`adding note ${note.id}`)
+                        })
+                    notesNumberRef.current += data.notes.length;
+                    console.log(data.notes.length);
+                    setIsLoading(false);  
+                        })
+            .catch(error => {
+                console.log(error);
+            })
+        }
+    }
+
+
 
     return (
         <>
+        <div style={{textAlign:"center"}}>{notesNumberRef.current}</div>
         <div className="new-note-button-div">
             <button className="new-note-button" onClick={() => setShowNewNoteModal(!showNewNoteModal)}>New Note</button>
         </div>
         <div className="notes-container">
             <div className="notes">
                 <NotesList notes={notes} handleDeleteNote={handleDeleteNote} currentUsername={currentUsername} isAdmin={isAdmin} editNote={editNote} />  
-            </div>       
+            </div>   
         </div>
         {showNewNoteModal && <NewNoteModal hideNewNoteModal={hideNewNoteModal} handleNewNote={handleNewNote}   projectId={projectId} />}
         </>

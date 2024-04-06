@@ -133,21 +133,37 @@ class NotesConsumer(AsyncWebsocketConsumer):
                     "note_id":note_id
                 }
             )
+        elif message_type == 'edit_note':
+            note_id = text_data_json.get('note_id')
+            content = text_data_json.get('content')
+            await self.edit_note(note_id,content)
+
+            #Send message to group
+            await self.channel_layer.group_send(
+                self.room_group_name, {
+                    "type":"note.edit",
+                    "note_id":note_id,
+                    "content":content
+                }
+            )
 
     async def note_new(self,event):
         new_note = event["new_note"]
-
         await self.send(text_data=json.dumps({"type":"new_note","new_note":new_note}))
 
     async def note_delete(self,event):
         note_id = event["note_id"]
-        
         await self.send(text_data=json.dumps({"type":"delete_note","note_id":note_id}))
+
+    async def note_edit(self,event):
+        note_id = event["note_id"]
+        content = event["content"]
+        await self.send(text_data=json.dumps({"type":"edit_note","note_id":note_id,"content":content}))
 
 
     @database_sync_to_async
     def get_notes(self):
-        notes_query = Note.objects.filter(project=Project.objects.get(pk=self.room_name))
+        notes_query = Note.objects.filter(project=Project.objects.get(pk=self.room_name)).order_by("-timestamp")[:9]
         notes = [note.serialize() for note in notes_query]
         return notes
     
@@ -160,6 +176,13 @@ class NotesConsumer(AsyncWebsocketConsumer):
     def delete_note(self,note_id):
         note_to_delete = Note.objects.get(pk=note_id)
         note_to_delete.delete()
+        return
+    
+    @database_sync_to_async
+    def edit_note(self,note_id,content):
+        note = Note.objects.get(pk=note_id)
+        note.content = content
+        note.save()
         return
 
     @database_sync_to_async
