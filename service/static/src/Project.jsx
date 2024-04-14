@@ -58,7 +58,7 @@ function Tool({currentTool, projectId, userId, currentUsername, isAdmin }) {
     if (CurrentTool) {
         return (
             <>
-            <CurrentTool projectId={projectId} userId={userId} currentUsername={currentUsername} isAdmin={isAdmin} />
+            <CurrentTool projectId={projectId}  userId={userId} currentUsername={currentUsername} isAdmin={isAdmin} />
             </>
         )
     } else {

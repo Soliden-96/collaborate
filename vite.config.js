@@ -14,11 +14,11 @@ export default defineConfig({
   },
   build:{
     manifest:true,
-    outDir:'./static/src/dist',
+    outDir:'/service/static/src/dist',
     rollupOptions:{
       input:{
-        main:'./static/src/main.jsx',
-        project:'./static/src/project-template.jsx',
+        main:'/service/static/src/main.jsx',
+        project:'/service/static/src/project-template.jsx',
       }
       },
     },

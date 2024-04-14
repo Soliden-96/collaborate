@@ -75,11 +75,12 @@ def logout_view(request):
 def create_project(request):
     if request.method == "POST":
         title = request.POST.get('title')
+        description = request.POST.get('description')
         # Should try to make this dynamic
         if Project.objects.filter(title=title).exists():
             return render(request,"service/profile.html",{"message":"This name already exists"})
 
-        new_project = Project(title=title)
+        new_project = Project(title=title,description=description)
         new_project.save()
         membership = ProjectMembership(user=request.user, project=new_project, is_admin=True)
         membership.save()
@@ -102,7 +103,7 @@ def project(request,id):
 
 
 @login_required
-def get_project_participants(request,project_id):
+def get_project_info(request,project_id):
     current_project = Project.objects.get(pk=project_id)
     participants = {}
     for participant in ProjectMembership.objects.filter(project=current_project):
@@ -113,7 +114,9 @@ def get_project_participants(request,project_id):
                 'is_admin':participant.is_admin
             }
     
-    return JsonResponse({"participants":participants},status=200)
+    project = current_project.serialize()
+    
+    return JsonResponse({"participants":participants,"project":project},status=200)
 
 
 @login_required
@@ -240,7 +243,7 @@ def get_more_messages(request,start,end,project_id):
 
 @login_required
 def get_more_notes(request,start,end,project_id):
-    if request.method != "GET":
+    if request.method != "GET": 
         return JsonResponse({"message":"Invalid request"},status=400)
 
     current_project = Project.objects.get(pk=project_id)

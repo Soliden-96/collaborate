@@ -1,0 +1,87 @@
+.home-page {
+    text-align: center;
+    display:flex;
+    gap:10rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.home-page > div {
+    text-align: center;
+    transform:translate(-50%)
+}
+
+.project-description {
+    border:solid 1px rgb(49, 49, 255);
+    border-radius:7px;
+    padding-top:10px;
+    padding-left:20px;
+    padding-right: 20px;
+    padding-bottom:20px;
+}
+
+.invitation-input {
+    display:block;
+    margin:6px auto; 
+}
+
+.participants-list-div {
+    border:solid 1px rgb(49, 49, 255);
+    border-radius:7px;
+    margin-top:5px;
+    padding-top:5px;
+    padding-left:20px;
+    padding-right: 20px;
+    padding-bottom:20px;
+    max-height: 250px;
+}
+
+.list {
+    height:100%;
+    overflow-y: scroll;
+}
+
+.message-color-red {
+    color:red;
+}
+
+.message-color-green {
+    color:green;
+}
+
+.project-options button {
+    display:block;
+    margin-top:20px;
+}
+
+
+.gold-user {
+    color:gold;
+}
+
+.grey-user {
+    color:grey;
+}
+
+.is-admin-btn, .not-admin-btn {
+    border:none;
+    background:none
+} 
+
+.is-admin-btn, .not-admin-btn :hover {
+    cursor:pointer;
+}
+
+.remove-from-project-btn {
+    border:none;
+    border-radius: 5px;
+    background-color: #ff4d4d;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.remove-from-project-btn:hover {
+    background-color: #ff6666;
+    cursor:pointer
+}

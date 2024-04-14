@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_vite',
+    'fontawesomefree',
     'service',
 ]
 
@@ -139,7 +140,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [
-    BASE_DIR / "static/src/dist"
+    BASE_DIR / "service/static/src/dist"
 ]
 
 

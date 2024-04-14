@@ -1,4 +1,5 @@
 {% load django_vite %}
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -6,6 +7,9 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Collaborate App</title>
+        <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+        <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+        <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css">
         <script type="module" src="http://localhost:5173/@vite/client"></script> 
         <script type="module">
             import RefreshRuntime from 'http://localhost:5173/@react-refresh'
@@ -16,10 +20,10 @@
           </script>
     </head>
     <body>
-        <div id="project-info" data-project="{{ project.id }}" data-user="{{ request.user.id }}" data-username="{{ request.user.username}}" data-is_admin="{{ is_admin }}">
+        <div id="project-info" data-project="{{ project.id }}"  data-user="{{ request.user.id }}" data-username="{{ request.user.username}}" data-is_admin="{{ is_admin }}">
         <h3>You are logged in as {{ request.user.username }} on {{ project.title }}</h3>
         </div>
         <div id="root"></div>
-        <script type="module" src="http://localhost:5173/static/src/project-template.jsx"></script>    
+        <script type="module" src="http://localhost:5173/service/static/src/project-template.jsx"></script>    
     </body>
 </html>

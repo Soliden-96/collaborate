@@ -1,23 +1,29 @@
 import  React ,{ useEffect, useState, useRef } from 'react'
 
 import Cookies from 'js-cookie';
-import './Invite.css';
+import './Invite.css'; 
 
 export default function Invite({ projectId, isAdmin, userId }) {
-    const [invited,setInvited] = useState('');
-    const [message,setMessage] = useState({});
-    const [participants,setParticipants] = useState({});
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [invited, setInvited] = useState('');
+    const [message, setMessage] = useState({});
+    const [participants, setParticipants] = useState({});
 
     useEffect(() => {
-        fetch(`/get_project_participants/${projectId}`,)
+        fetch(`/get_project_info/${projectId}`,)
         .then(response => response.json())
         .then(data => {
             console.log(data.participants)
             setParticipants(data.participants);
+            console.log(data.description);
+            setTitle(data.project['title']);
+            setDescription(data.project["description"]);
         })
         .catch(error => {
             console.log(error);
         })
+
     },[projectId])
 
     function handleSubmit(e) {
@@ -141,34 +147,55 @@ export default function Invite({ projectId, isAdmin, userId }) {
 
     return (
         <>
-        <div className="invitation-page">
-            <button onClick={() => removeFromProject(userId)} className="abandon-project-button">Abandon project</button>
-            {isAdmin && <button onClick={closeProject} className="close-project-button">Close Project</button>}
-            <h4>Invite people to collaborate on your project</h4>
-            {message && <p className={`message-color-${message.color}`}>{message.message}</p>}
-            <form onSubmit={handleSubmit}>
-                <label>Who do you want to invite??</label>
-                <input className="invitation-input" onChange={e => setInvited(e.target.value)} type="text" value={invited} />
-                <button type="submit">Invite</button>
-            </form>
+        <div className="home-page">
+            
+            
+            
+            <div className="project-participants-section">
+                {isAdmin && (
+                    <div className="invitations-div">
+                        <h4>Invite people to collaborate on your project</h4>
+                        {message && <p className={`message-color-${message.color}`}>{message.message}</p>}
+                        <form onSubmit={handleSubmit}>
+                            <label>Who do you want to invite??</label>
+                            <input className="invitation-input" onChange={e => setInvited(e.target.value)} type="text" value={invited} />
+                            <button type="submit">Invite</button>
+                        </form>
+                    </div>
+                )}
 
-            <h4>Participants</h4>
-            {Object.values(participants).map((participant,index) => (
-                <div key={participant.id} className="participant">
-                    {participant.name}
-                    {isAdmin ? (
-                    <button onClick={() => changeAdminCondition(participant.id)} 
-                        className={participant.is_admin ? "is-admin" : "not-admin"}>
-                            {participant.is_admin ? "Is an admin" : "Not an admin"}
-                    </button>
-                    ) : (
-                    <button className={participant.is_admin ? "is-admin" : "not-admin"}>
-                        {participant.is_admin ? "Is an admin" : "Not an admin"}
-                    </button>
-                    )}
-                    {isAdmin && <button onClick={() => removeFromProject(participant.id)} className="remove-from-project-button">Remove from project</button>}
+                <div className="participants-list-div">
+                    <h4>Participants</h4>
+                    <div className="list">
+                    {Object.values(participants).map((participant,index) => (
+                        <div key={participant.id} className="participant">
+                            {participant.name}
+                            {isAdmin ? (
+                            <button onClick={() => changeAdminCondition(participant.id)} 
+                                className={participant.is_admin ? "is-admin-btn" : "not-admin-btn"}>
+                                    {participant.is_admin ? <i className="fa-solid fa-user-tie gold-user"></i> : <i className="fa-solid fa-user-tie grey-user"></i>}
+                            </button>
+                            ) : (
+                            <button className={participant.is_admin ? "is-admin-btn" : "not-admin-btn"}>
+                                {participant.is_admin ? <i className="fa-solid fa-user-tie gold-user"></i> : <i className="fa-solid fa-user-tie grey-user"></i>}
+                            </button>
+                            )}
+                            {isAdmin && <button onClick={() => removeFromProject(participant.id)} className="remove-from-project-btn">X</button>}
+                        </div>
+                    ))}
+                    </div>
                 </div>
-            ))}
+            </div>
+
+            <div className="project-header">
+                <h2 className="project-title">{title} {isAdmin && <i className="fa-solid fa-user-tie gold-user"></i>}</h2>
+                <p className="project-description">{description}</p>
+            </div>
+            
+            <div className="project-options">
+                <button onClick={() => removeFromProject(userId)} className="abandon-project-button">Abandon project</button>
+                {isAdmin && <button onClick={closeProject} className="close-project-button">Close Project</button>}
+            </div>
         </div>
         </>
     )

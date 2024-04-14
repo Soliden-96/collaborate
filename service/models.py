@@ -10,8 +10,16 @@ class User(AbstractUser):
 
 class Project(models.Model):
     title = models.CharField(max_length=64)
+    description = models.TextField(max_length=256,null=True)
     def __str__(self):
         return f"{self.title}"
+
+    def serialize(self):
+        return {
+            "id":self.pk,
+            "title":self.title,
+            "description":self.description
+        }
 
 class ProjectMembership(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="project_memberships")
