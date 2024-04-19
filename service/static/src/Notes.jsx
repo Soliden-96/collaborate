@@ -25,7 +25,7 @@ export default function Notes({projectId, currentUsername, isAdmin}) {
         window.addEventListener('scroll',handleScroll)
         
         const notesSocket = new WebSocket(
-            'ws://'
+            'ws://' 
             + window.location.host 
             +'/ws/notes/'
             + projectId

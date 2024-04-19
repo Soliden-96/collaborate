@@ -2,19 +2,33 @@
     position: fixed;
     top:5px;
     right:5px;
-    z-index:9999
+    z-index:9999;
+    font-family:Calibri;
 }
 
 .chat-button {
     position:absolute;
-    right:0;
-    margin-right: 45px;
+    top:10px;
+    right:100px;
+    border-radius:50%;
+    border:none;
+    height:50px;
+    width:50px;
+    font-size:20px;
+    background-color: white;
+    color:black;
+    border:solid 2px rgb(117, 253, 117)
+}
+
+.chat-button:hover {
+    cursor:pointer;
+    background-color:  #8ffb8f;
 }
 
 .chat-popup {
     position:relative;
-    margin-right:70px;
-    top:40px;
+    right:80px;
+    top:65px;
     width:400px;
     height:400px;
     z-index: 9999;

@@ -1,5 +1,6 @@
 .profile-page {
     text-align: center;
+    font-family:Calibri;
 }
 
 .top-of-page {
@@ -86,7 +87,7 @@
 }
 
 #invitations::-webkit-scrollbar-track {
-    display:none;
+    display:none; 
 }
 
 #invitations::-webkit-scrollbar-thumb {

@@ -2,11 +2,13 @@ import  React ,{ useEffect, useState, useRef } from 'react'
 import { Excalidraw } from "@excalidraw/excalidraw";
 import Cookies from 'js-cookie';
 import ConfirmationWindow from './ConfirmationWindow.jsx';
+import './Whiteboard.css';
 
 export default function WhiteboardMenu({projectId, userId, currentUsername, isAdmin}) {
     const [newWhiteboardTitle, setNewWhiteboardTitle] = useState('');
     const [whiteboards, setWhiteboards] = useState([]);
     const [selectedWhiteboardId, setSelectedWhiteboardId] = useState('');
+    const [selectedTitle,setSelectedTitle] = useState('');
     const [whiteboardToDelete,setWhiteboardToDelete] = useState(null);
     const [showConfirmation,setShowConfirmation] = useState(false);
  
@@ -91,49 +93,51 @@ export default function WhiteboardMenu({projectId, userId, currentUsername, isAd
     function cancelDelete() {
         setWhiteboardToDelete(null);
         setShowConfirmation(false);
-    }
+    } 
 
 
     
     if (!selectedWhiteboardId){
         return (
             <>
-            <div className="new-whiteboard">
-                <h2>New whiteboard</h2>
-                <form onSubmit={handleSubmit} className="new-whiteboard-form">
-                    <input onChange={(e) => setNewWhiteboardTitle(e.target.value)} value={newWhiteboardTitle} type="text" placeholder="Whiteboard title" />
-                    <button type="submit">Create Whiteboard</button>
-                </form>
+            <div className="whiteboard-menu">
+                <div className="new-whiteboard">
+                    <h2>New whiteboard</h2>
+                    <form onSubmit={handleSubmit} className="new-whiteboard-form">
+                        <input className="new-whiteboard-input" onChange={(e) => setNewWhiteboardTitle(e.target.value)} value={newWhiteboardTitle} type="text" placeholder="Whiteboard title" />
+                        <button className="create-whiteboard-btn" type="submit">Create Whiteboard</button>
+                    </form>
+                </div>
+                <div className="select-whiteboard">
+                    <h2>Select Whiteboard</h2>
+                    {whiteboards.map((whiteboard) => (
+                        <div key={whiteboard.id} className="project-whiteboard">
+                            <div className="whiteboard-title" onClick={() => {setSelectedWhiteboardId(whiteboard.id);setSelectedTitle(whiteboard.title);}}>{whiteboard.title}</div>
+                            {(currentUsername===whiteboard.created_by || isAdmin) && <button className="delete-btn" onClick={() => askDeleteWhiteboard(whiteboard.id)}>&#x2717;</button>}
+                        </div>
+                    ))}
+                </div>
+                {showConfirmation && (
+                    <ConfirmationWindow
+                        message="Are you sure you want to delete this whiteboard??"
+                        onConfirm={confirmDelete}
+                        onCancel={cancelDelete}
+                    />
+                )}
             </div>
-            <div className="select-whiteboard">
-                <h2>Select Whiteboard</h2>
-                {whiteboards.map((whiteboard) => (
-                    <div key={whiteboard.id} className="project-whiteboard">
-                        <div className="whiteboard-title" onClick={() => setSelectedWhiteboardId(whiteboard.id)}>{whiteboard.title}</div>
-                        {(currentUsername===whiteboard.created_by || isAdmin) && <button onClick={() => askDeleteWhiteboard(whiteboard.id)}>Delete</button>}
-                    </div>
-                ))}
-            </div>
-            {showConfirmation && (
-                <ConfirmationWindow
-                    message="Are you sure you want to delete this whiteboard??"
-                    onConfirm={confirmDelete}
-                    onCancel={cancelDelete}
-                />
-            )}
             </>
             )
     } else {
         return (
             <>
             <button onClick={() => setSelectedWhiteboardId('')}>Back</button>
-            <Whiteboard projectId={projectId} userId={userId} selectedWhiteboard={selectedWhiteboardId} />
+            <Whiteboard projectId={projectId} userId={userId} selectedWhiteboard={selectedWhiteboardId} selectedTitle={selectedTitle} />
             </>
         )
         }
 }
 
-function Whiteboard({projectId, userId, selectedWhiteboard}) {
+function Whiteboard({projectId, userId, selectedWhiteboard, selectedTitle}) {
     const whiteboardId = parseInt(selectedWhiteboard);
     const {data,loading} = useData(`/get_whiteboard_elements/${projectId}/${whiteboardId}`)
     
@@ -171,12 +175,12 @@ function Whiteboard({projectId, userId, selectedWhiteboard}) {
 
     return (
         <div className="whiteboard">
-            <Canvas projectId={projectId} userId={userId} initialData={data}  whiteboardId={whiteboardId} />
+            <Canvas projectId={projectId} userId={userId} initialData={data}  whiteboardId={whiteboardId} title={selectedTitle} />
         </div>
     )
 }
 
-function Canvas({projectId, userId, initialData, whiteboardId}) {
+function Canvas({projectId, userId, initialData, whiteboardId, title}) {
     const [excalidrawAPI, setExcalidrawAPI] = useState(null);
     const socketRef = useRef(null);
     const isServerUpdate = useRef(false);
@@ -269,7 +273,7 @@ function Canvas({projectId, userId, initialData, whiteboardId}) {
 
     return (
         <>
-        <h1 style={{ textAlign: "center" }}>Excalidraw Example</h1>
+        <h1 className="title" style={{ textAlign: "center" }}>{title}</h1>
         <div style={{ height: "500px" }}>
             <Excalidraw 
             initialData={initialData}

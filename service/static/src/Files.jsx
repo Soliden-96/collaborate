@@ -2,6 +2,8 @@ import  React ,{ useEffect, useState, useRef } from 'react'
 import Cookies from 'js-cookie';
 import ConfirmationWindow from './ConfirmationWindow.jsx';
 
+import './Files.css';
+
 // For real-time files need to use Base64 encoding, and decoding on the backend
 
 export default function FileRepo({projectId, currentUsername, isAdmin}) {
@@ -122,15 +124,16 @@ function FileComponent({file, projectId, currentUsername, handleDeleteFile, isAd
     return (
         <>        
         <div key={file.id} className="file-component">
-            <p>Name: {file.name}</p>
-            <p>Uploaded By: {file.uploaded_by}</p>
-            <p>Timestamp: {file.timestamp}</p>
+            <p className="file-name">{file.name} {file.type && <span className="file-type">( {file.type} )</span>}</p>
+            <p className="file-uploaded-by"><strong>From:</strong> {file.uploaded_by}</p>
+            <p className="file-timestamp">{file.timestamp}</p>
             {/* Add a link for downloading the file */}
-            <button onClick={handleDownload}>
-                Download File
-            </button>
-            {(file.uploaded_by === currentUsername || isAdmin) && <button onClick={() => askDeleteFile(file.id)}>Delete File</button>}
-            <hr></hr>
+            <div className="file-actions">
+                <button className="download-btn" onClick={handleDownload}>
+                    <i className="fa-solid fa-download"></i>
+                </button>
+                {(file.uploaded_by === currentUsername || isAdmin) && <button className="delete-file-btn" onClick={() => askDeleteFile(file.id)}>&#x2717;</button>}
+            </div>       
         </div>
         {showConfirmation && (
             <ConfirmationWindow 
@@ -153,9 +156,15 @@ function FileUploadArea({projectId, addFile}) {
         e.preventDefault();
         const csrfToken = Cookies.get('csrftoken');
         let formData = new FormData();
+
+        const fileNamePart = fileToUpload.name.split('.');
+        const fileExtension = fileNamePart.pop();
+
         formData.append('uploaded_file',fileToUpload);
         formData.append('file_name',uploadAs);
         formData.append('project_id',projectId);
+        formData.append('file_extension',fileExtension);
+
         // line to inspect
         console.log(Object.fromEntries(formData.entries()));
         fetch('/upload_file',{
@@ -181,7 +190,7 @@ function FileUploadArea({projectId, addFile}) {
         })  
     }
 
-    return (
+    return ( 
         <div className="upload-area">
             <form onSubmit={uploadFile} >
                 <input type="file" onChange={(e) => setFileToUpload(e.target.files[0])} />

@@ -7,7 +7,7 @@ export default function Chat({ projectId, currentUsername }) {
 
     return (
         <div className="chat-container">
-            <button onClick={() => setIsToggled(!isToggled)} className="chat-button">Chat</button>
+            <button onClick={() => setIsToggled(!isToggled)} className="chat-button"><i className="fa-solid fa-comment-dots"></i></button>
             
             {isToggled && <ChatBox projectId={projectId} currentUsername={currentUsername} />}
             
@@ -21,7 +21,7 @@ function ChatBox({ projectId, currentUsername }) {
     const chatSocketRef = useRef(null);
     const messagesNumberRef = useRef(0);
     const heightRef = useRef(null);
-
+ 
 
     useEffect(() => {
         const chatLogElement = document.querySelector('#chat-log');

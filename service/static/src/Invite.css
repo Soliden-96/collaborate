@@ -1,23 +1,58 @@
 .home-page {
-    text-align: center;
     display:flex;
-    gap:10rem;
     justify-content: center;
-    flex-wrap: wrap;
+    flex-wrap:wrap;
+    margin-left:50px;
+    margin-right:50px;
+    font-family: Calibri;
 }
 
-.home-page > div {
-    text-align: center;
-    transform:translate(-50%)
+.project-section, .participants-section {
+    flex:1; 
+    border:solid 1px black;
+    max-width:500px;
+    min-width:320px;
+
+}
+
+.project-section {
+    text-align:center;
+}
+
+.project-header {
+    margin-bottom:20px;
 }
 
 .project-description {
     border:solid 1px rgb(49, 49, 255);
     border-radius:7px;
-    padding-top:10px;
-    padding-left:20px;
-    padding-right: 20px;
-    padding-bottom:20px;
+    padding:10px;
+    max-width:500px;
+    margin:0 auto;
+    white-space: pre-line;
+}
+
+
+.leave-project-btn, .close-project-btn {
+    margin-top:30px;
+    background-color: #ff4d4d;
+    color:white;
+    border-radius:3px;
+    border:none;
+    padding:3px;
+}
+
+.leave-project-btn:hover, .close-project-btn:hover {
+    background-color: #ff6666;
+}
+
+.close-project-btn {
+    margin-left:15px;
+}
+
+.invitations-div {
+    text-align:center;
+    margin-bottom: 15px;
 }
 
 .invitation-input {
@@ -25,20 +60,59 @@
     margin:6px auto; 
 }
 
+.invitations-div {
+    width:100%;
+}
+
+.participants-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    height: 100%; /* Set the height of the container */
+}
+
+.participants-title {
+    text-align: center;
+}
+
 .participants-list-div {
     border:solid 1px rgb(49, 49, 255);
     border-radius:7px;
-    margin-top:5px;
-    padding-top:5px;
+    margin:5 auto;
+    padding-top:3px;
     padding-left:20px;
     padding-right: 20px;
     padding-bottom:20px;
     max-height: 250px;
+    width:250px;
 }
+
+.participant {
+    margin-bottom:10px;
+}
+
+.participant-options {
+    float:right;
+}
+
 
 .list {
     height:100%;
     overflow-y: scroll;
+}
+
+.list::-webkit-scrollbar {
+    width:3px;
+}
+
+.list::-webkit-scrollbar-track {
+    display:none; 
+}
+
+.list::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    background-color: #8e8d8d;
 }
 
 .message-color-red {
@@ -47,11 +121,6 @@
 
 .message-color-green {
     color:green;
-}
-
-.project-options button {
-    display:block;
-    margin-top:20px;
 }
 
 
@@ -68,7 +137,7 @@
     background:none
 } 
 
-.is-admin-btn, .not-admin-btn :hover {
+.is-admin-btn:hover, .not-admin-btn:hover {
     cursor:pointer;
 }
 
@@ -83,5 +152,5 @@
 
 .remove-from-project-btn:hover {
     background-color: #ff6666;
-    cursor:pointer
+    cursor:pointer;
 }

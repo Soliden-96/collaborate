@@ -1,1 +1,35 @@
+.app-introduction {
+    text-align:center;
+}
 
+.not-toggled, .toggled {
+  display: inline-block; /* Change display to inline-block */
+  transition-duration: 0.2s;
+}
+
+.toggled {
+  transform: rotate(90deg);
+  transform-origin: center; /* Set transform-origin to center */
+}
+
+.access-options {
+    text-align:center;
+}
+
+.access-switch {
+    margin-bottom: 5px;
+}
+
+.switch-register-btn {
+    margin-left:5px;
+}
+
+.access-form  input{
+    display:block;
+    margin:5px auto 0;
+}
+
+.access-form button {
+    display: block;
+    margin:5px auto 0;
+}

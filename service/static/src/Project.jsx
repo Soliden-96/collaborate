@@ -33,18 +33,20 @@ export default function Project({}) {
   return (
       <>
       {isAdmin && <div>You are an admin on this project</div>}
+      
         <div style={{ textAlign:'center' }}>
         <div className="menu-bar">
             {Object.keys(tools).map(tool => (
                 <button 
                     key={tools[tool].name}
                     id={tools[tool].name}
-                    className={selectedTool===tools[tool].name ? 'selected-tool':''}
+                    title={tools[tool].name}
+                    className={selectedTool===tools[tool].name ? 'selected-tool':'not-selected'}
                     onClick={() => setSelectedTool(tools[tool].name)}
                 >
                     {tools[tool].name}
                 </button>
-            ))}
+            ))} 
         </div>
         </div>
       <Tool currentTool={currentTool} projectId={projectId} userId={userId} currentUsername={currentUsername} isAdmin={isAdmin} />

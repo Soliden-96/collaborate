@@ -244,7 +244,7 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
       <button className={`toggle-comments ${isToggled[item.item_id] ? 'thread-shown' : 'thread-hidden'}`} onClick={() => onToggleThread(item.item_id)}>
       &#10148;
       </button>
-      
+       
       {isToggled[item.item_id] && <CommentsList comments={comments} currentUsername={currentUsername} itemId={item.item_id} handleDeleteComment={handleDeleteComment} isAdmin={isAdmin} />}
   
       <div className="add-comment">

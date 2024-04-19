@@ -10,7 +10,7 @@ class User(AbstractUser):
 
 class Project(models.Model):
     title = models.CharField(max_length=64)
-    description = models.TextField(max_length=256,null=True)
+    description = models.TextField(max_length=512,null=True)
     def __str__(self):
         return f"{self.title}"
 
@@ -87,7 +87,8 @@ class Comment(models.Model):
 
 class File(models.Model):
     name = models.CharField(max_length=64)
-    uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="uploaded_files")
+    uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="uploaded_files",null=True)
+    file_type = models.CharField(max_length=64, null=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="project_files")
     # NEED TO CHECK FILE STORAGE FOR DEPLOYMENT
     file = models.FileField(upload_to="filerepo")
@@ -96,6 +97,7 @@ class File(models.Model):
     def serialize(self):
         return {
             "id":self.pk,
+            "type":self.file_type,
             "name":self.name,
             "uploaded_by":self.uploaded_by.username,
             "timestamp":self.timestamp.strftime("%b %d %Y, %I:%M %p")

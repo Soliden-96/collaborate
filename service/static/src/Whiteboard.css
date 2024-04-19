@@ -1,0 +1,60 @@
+.whiteboard-menu {
+    font-family:Calibri;
+    text-align:center;
+}
+
+.create-whiteboard-btn {
+    margin-left:5px;
+}
+
+.new-whiteboard {
+    margin-bottom:50px;
+}
+
+.new-whiteboard-input {
+    width:300px;
+}
+
+.select-whiteboard {
+    max-width:600px;
+    margin:0 auto;
+    padding-left:20px;
+    padding-right:20px;
+}
+
+.project-whiteboard {
+    display:flex;
+    justify-content: center;
+    margin-bottom:10px;
+}
+
+.whiteboard-title {
+    flex-grow:1;
+}
+
+.whiteboard-title,.delete-btn {
+    display:inline-block;
+}
+
+
+.whiteboard-title:hover {
+    cursor:pointer;
+    font-weight: bold;
+    background-color: aliceblue;
+}
+
+.delete-btn {
+    float:right;
+    border:none;
+    border-radius: 5px;
+    background-color: #ff4d4d;
+    color: white;
+    font-weight: bold;
+    font-size: 10px;
+    margin:auto;
+}
+
+.delete-btn:hover {
+    background-color: #ff6666;
+    cursor:pointer;
+}

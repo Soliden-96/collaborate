@@ -4,8 +4,9 @@ import Cookies from 'js-cookie';
 
 export function Access() {
   const [user,setUser] = useState(true);
+  const [descriptionToggled,setDescriptionToggled] = useState(false);
 
-  function toLogin() {
+  function toLogin() { 
     setUser(true);
   }
 
@@ -13,30 +14,29 @@ export function Access() {
     setUser(false);
   }
  
-  if (user) {
-    return (
-      <>
+  
+  return (
+    <>
+    <div className="app-introduction">
+      <h2>App title</h2>
+      <div className="app-description-toggle" onClick={() => setDescriptionToggled(!descriptionToggled)}>App description option  <span className={descriptionToggled ? "toggled" : "not-toggled"}>&#10148;</span></div>
+      {descriptionToggled && <p>Actual Description of the application</p>}
+    </div>
+    <div className="access-options">
       <Switch toLogin={toLogin}  toRegister={toRegister} />
-      <Login />
-      </>
-    )
-  } else {
-    return (
-      <>
-      <Switch toLogin={toLogin} toRegister={toRegister} />
-      <Register />
-      </>
-    )
-  }
+      {user ? <Login /> : <Register />}
+    </div>
+    </>
+  )
 }
 
   
 function Switch({toLogin,toRegister}) {
   return(
     <>
-    <div>
+    <div className="access-switch">
       <button onClick={toLogin}>Login</button>
-      <button onClick={toRegister}>Register</button>
+      <button className="switch-register-btn" onClick={toRegister}>Register</button>
     </div>
     </>
   )
@@ -82,9 +82,9 @@ function Login() {
     loginUser(username,password);
   }
 
-  return (
+  return ( 
       <>
-      <div>
+      <div className="access-form">
         Login here!!
         {message && <p>{message}</p>}
         <form onSubmit={handleSubmit}>
@@ -139,7 +139,7 @@ function Register() {
 
   return (
     <>
-    <div>
+    <div className="access-form">
       Register
       {message && <p>{message}</p>}
       <form onSubmit={handleSubmit}>

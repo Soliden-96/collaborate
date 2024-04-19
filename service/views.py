@@ -260,6 +260,7 @@ def upload_file(request):
     uploaded_file = request.FILES.get('uploaded_file','')
     name = request.POST.get('file_name','')
     project_id = request.POST.get('project_id','')
+    file_extension = request.POST.get('file_extension','')
 
     print(uploaded_file)
     print(name)
@@ -267,13 +268,13 @@ def upload_file(request):
     
     file_to_store = File(
         uploaded_by = request.user,
-        # Why does this work instead of using get which returns matching query does not exist
+        file_type = file_extension,
         project = Project.objects.get(pk=project_id),
         name = name,
         file = uploaded_file,
     )
     file_to_store.save()
-
+ 
     return JsonResponse({"message":"File stored successfully", "file":file_to_store.serialize()}, status=200)
 
 # Check if users on project is todo

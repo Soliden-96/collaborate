@@ -1,0 +1,70 @@
+.files-div {
+    display:flex;
+    justify-content: center;
+    flex-wrap:wrap;
+    gap:10vh;
+}
+
+.file-component {
+    position:relative;
+    border:solid 1px black;
+    width:250px;
+    min-height:175px;
+    text-align:center;
+    padding-top:15px;
+    font-family: Calibri;
+}
+
+.file-name {
+    display:inline;
+    font-size: 20px;
+}
+
+.file-type {
+    font-size:14px;
+}
+
+
+.file-uploaded-by {
+    font-size:18px;
+}
+
+.file-timestamp {
+    font-size:12px;
+}
+
+.file-uploaded-by, .file-timestamp {
+    margin-top:25px;
+}
+
+.file-actions {
+    position:absolute;
+    text-align: center;
+    left:50%;
+    transform: translateX(-50%);
+    bottom:10px;
+}
+
+.file-actions button {
+    height: 30px;
+    width:30px;
+    vertical-align: top;
+}
+
+.download-btn:hover {
+    cursor: pointer;
+    font-weight:bold;
+}
+
+.delete-file-btn {
+    margin-left:5px;
+    background-color: #ff4d4d;
+    color:white;
+    border:none;
+    border-radius: 7px; 
+}
+
+.delete-file-btn:hover {
+    cursor:pointer;
+    background-color: #ff6666;
+}
