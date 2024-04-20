@@ -11,19 +11,35 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
     const [showItemModal,setShowItemModal] = useState(false);
     const [loading,setLoading] = useState(true);
     const itemSocketRef = useRef(null);
+    const [pageButtons,setPageButtons] = useState([]);
+    const [selectedPage, setSelectedPage] = useState(0);
+
+    useEffect(() => {
+      const totalPages = Math.ceil(items.length / 3);
+
+      // The syntax here is Array.from(arrayLike, mapFN)
+      // Initializes an array of the number of totalPages , each of its elements are initialized as undefined
+      // Therefore in the map() function we store the undefined value as _, and use its index as value
+      const newPageButtons = Array.from({ length: totalPages }, (_, index) => index);
+    
+      // Update the pageButtons state with the new array
+      setPageButtons(newPageButtons);
+    },[items.length])
   
+    
     useEffect(() => {
       console.log('Starting connection');
       const itemSocket = new WebSocket(
         'ws://' + window.location.host + '/ws/items/' + projectId + '/'
       );
       console.log('connection created');
-   
+
       itemSocket.onmessage = function (e) {
         console.log('Message received');
         const data = JSON.parse(e.data);
         console.log(data);
         // Handle incoming messages...
+
         if (data.type==='items') {
           setItems(data.items.reverse());
           const initialComments = {} ;
@@ -32,7 +48,7 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
           })
           setComments(initialComments);
           setLoading(false);
-        
+
         } else if (data.type==='item') {
           if (data.action==='create') {
             setItems((items) => ([
@@ -43,6 +59,7 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
               ...comments,
               [data.item.item_id] : []
             }));
+
           } else if (data.action==='delete') {
             setItems((items) => items.filter(i => i.item_id !== data.item_id));
           }
@@ -133,7 +150,7 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
       itemSocketRef.current.send(JSON.stringify({
         'type':'item',
         'action':'delete',
-        'item_id':item_id
+        'item_id':item_id 
       }));
     }
 
@@ -161,7 +178,9 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
         <button onClick={() => setShowItemModal(!showItemModal)}>Create Item</button>
         {showItemModal && <NewItemModal handleCreateItem={handleCreateItem} closeItemModal={closeItemModal} />}
         <div className="items">
-          {items.map((item) => ( 
+          {items
+            .slice(selectedPage * 3, selectedPage * 3 + 3)
+            .map((item) => ( 
             <Item
               key={item.item_id}
               item={item}
@@ -176,6 +195,11 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
               handleDeleteItem={handleDeleteItem}
               isAdmin={isAdmin}
             />
+          ))}
+        </div>
+        <div className="items-pages">
+          {pageButtons.map((button,index) => (
+            <button key={index} onClick={() => setSelectedPage(index)} className="page-btn">{index + 1}</button>
           ))}
         </div>
       </>

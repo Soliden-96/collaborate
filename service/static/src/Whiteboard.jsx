@@ -280,7 +280,6 @@ function Canvas({projectId, userId, initialData, whiteboardId, title}) {
             UIOptions={{tools:{image:false}}}
             excalidrawAPI={(api)=> setExcalidrawAPI(api)}
             onPointerDown={(activeTool) => handlePointerDown(activeTool)}
-
             />
         </div>
         </>
