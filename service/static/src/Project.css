@@ -1,14 +1,42 @@
+.back-button {
+    position:absolute;
+    top:10px;
+    left:5vw;
+    border-radius:50%;
+    border:none;
+    height:40px;
+    width:40px;
+    font-size:16px;
+    background-color: white;
+    color:black;
+    border:solid 2px rgb(117, 253, 117)
+}
+
+.back-button:hover {
+    cursor:pointer;
+    background-color:  #8ffb8f;
+}
+
 .menu-bar{
-    height:4rem;
+    margin-top:60px;
+    height:auto;
+    margin-bottom:20px;
+    display:flex;
+    justify-content: center;
+    flex-wrap:wrap;
+    gap:2.5rem;
+}
+
+@media (max-width:390px) {
+    .menu-bar {
+       gap:5rem;
+    }
 }
 
 .menu-bar button {
-    display:inline-block;
     transition-duration: 0.5s;
     border: none;
     border-radius:50%;
-    margin-left: 1rem;
-    margin-right: 1rem;
     padding-top: 0.7rem;
     padding-bottom:0.7rem;
     height: 2.5rem;
@@ -34,42 +62,6 @@
 }
 
 
-.confirmation-window {
-    position: fixed;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 20px;
-    width: 300px;
-    text-align: center;
-}
-
-.confirmation-buttons {
-    display: flex;
-    justify-content: center;
-}
-
-.confirmation-buttons button {
-    margin-right: 10px;
-}
-
-.confirmation-buttons .confirm {
-    color:white;
-    background-color: rgb(5, 207, 5);
-    border: none;
-    border-radius: 10%;
-}
-
-.confirmation-buttons .cancel {
-    color:white;
-    background-color: red;
-    border:none;
-    border-radius: 10%;
-}
 
 
 

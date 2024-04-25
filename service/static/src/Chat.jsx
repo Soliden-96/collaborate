@@ -12,7 +12,7 @@ export default function Chat({ projectId, currentUsername }) {
             {isToggled && <ChatBox projectId={projectId} currentUsername={currentUsername} />}
             
         </div>
-    )
+    )  
 } 
 
 function ChatBox({ projectId, currentUsername }) {
@@ -20,6 +20,7 @@ function ChatBox({ projectId, currentUsername }) {
     const [messageInput,setMessageInput] = useState('');
     const chatSocketRef = useRef(null);
     const messagesNumberRef = useRef(0);
+    const totalMessagesRef = useRef(0);
     const heightRef = useRef(null);
  
 
@@ -50,6 +51,7 @@ function ChatBox({ projectId, currentUsername }) {
                 </li>
                 ).reverse());
                 messagesNumberRef.current = data.chat_history.length;
+                totalMessagesRef.current = data.total_messages;
                 setTimeout(() => {
                     const height = chatLogElement.scrollHeight;
                     chatLogElement.scrollTop = height; 
@@ -70,6 +72,7 @@ function ChatBox({ projectId, currentUsername }) {
                 )]
             );
             messagesNumberRef.current++;
+            totalMessagesRef.current++;
             setTimeout(() => {
                 const height = chatLogElement.scrollHeight;
                 chatLogElement.scrollTop = height; 
@@ -104,9 +107,9 @@ function ChatBox({ projectId, currentUsername }) {
         
     function loadMoreMessages(chatLogElement) {
         const height = chatLogElement.scrollHeight;
-        if (messagesNumberRef.current >= 10) {
-            const start = messagesNumberRef.current +1;
-            const end = messagesNumberRef.current +10;
+        if (messagesNumberRef.current >= 10 && messagesNumberRef.current < totalMessagesRef.current) {
+            const start = messagesNumberRef.current;
+            const end = messagesNumberRef.current + 9;
             console.log("start" + start);
             console.log("end" + end)
             fetch(`/get_more_messages/${start}/${end}/${projectId}`)

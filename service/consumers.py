@@ -21,9 +21,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         await self.accept()
 
-        chat_history = await self.get_chat_history()
+        chat_history, total_messages = await self.get_chat_history()
 
-        await self.send(text_data=json.dumps({"type":"chat_history","chat_history":chat_history}))
+        await self.send(text_data=json.dumps({"type":"chat_history","chat_history":chat_history, "total_messages":total_messages}))
 
     async def disconnect(self,close_code):
         #Leave group
@@ -69,9 +69,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_chat_history(self):
-        chat_messages = ChatMessage.objects.filter(room_id=self.room_name).order_by("-timestamp")[:10]
+        room_id = self.room_name
+    
+        chat_messages = ChatMessage.objects.filter(room_id=room_id).order_by("-timestamp")[:10]
         chat_history = [message.serialize() for message in chat_messages]
-        return chat_history
+    
+        total_messages = ChatMessage.objects.filter(room_id=room_id).count()
+        
+        return chat_history, total_messages
 
 
 class NotesConsumer(AsyncWebsocketConsumer):
@@ -88,9 +93,9 @@ class NotesConsumer(AsyncWebsocketConsumer):
 
         
         # Can't directly serialize query
-        notes = await self.get_notes()
+        notes, total_notes = await self.get_notes()
 
-        await self.send(text_data=json.dumps({"type":"notes","notes":notes})) 
+        await self.send(text_data=json.dumps({"type":"notes","notes":notes, "total_notes":total_notes})) 
     
     async def disconnect(self,close_code):
         #Leave group
@@ -163,9 +168,14 @@ class NotesConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_notes(self):
-        notes_query = Note.objects.filter(project=Project.objects.get(pk=self.room_name)).order_by("-timestamp")[:9]
+        project = Project.objects.get(pk=self.room_name)
+    
+        notes_query = Note.objects.filter(project=project).order_by("-timestamp")[:9]
         notes = [note.serialize() for note in notes_query]
-        return notes
+    
+        total_notes = Note.objects.filter(project=project).count()
+        
+        return notes, total_notes
     
     @database_sync_to_async
     def save_note(self,new_note):

@@ -25,6 +25,8 @@
 }
 
 
+
+
 .file-uploaded-by {
     font-size:18px;
 }
@@ -67,4 +69,35 @@
 .delete-file-btn:hover {
     cursor:pointer;
     background-color: #ff6666;
+}
+
+.upload-modal {
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background-color: white;
+    z-index:999;
+    border:solid 1px black;
+    height:200px;
+    width:300px;
+    text-align:center;
+    font-family:Calibri;
+}
+
+.upload-form input{
+    display:block;
+    margin:15px auto;
+}
+
+.upload-modal-btns {
+    text-align:center;
+}
+
+.upload-modal-btns button:hover {
+    cursor:pointer;
+}
+
+.close-modal-btn {
+    margin-left:5px;
 }

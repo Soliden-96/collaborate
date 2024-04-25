@@ -1,7 +1,7 @@
 .chat-container {
     position: fixed;
     top:5px;
-    right:5px;
+    right:5vw;
     z-index:9999;
     font-family:Calibri;
 }
@@ -9,12 +9,12 @@
 .chat-button {
     position:absolute;
     top:10px;
-    right:100px;
+    right:4vw;
     border-radius:50%;
     border:none;
-    height:50px;
-    width:50px;
-    font-size:20px;
+    height:40px;
+    width:40px;
+    font-size:18px;
     background-color: white;
     color:black;
     border:solid 2px rgb(117, 253, 117)
@@ -27,7 +27,7 @@
 
 .chat-popup {
     position:relative;
-    right:80px;
+    right:5vw;
     top:65px;
     width:400px;
     height:400px;

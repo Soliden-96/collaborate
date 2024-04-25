@@ -1,5 +1,4 @@
 import  React ,{ useEffect, useState, useRef } from 'react'
-
 import Cookies from 'js-cookie';
 import './Invite.css'; 
 
@@ -167,8 +166,7 @@ export default function Invite({ projectId, isAdmin, userId }) {
                         <h4>Invite people to collaborate on your project</h4>
                         {message && <p className={`message-color-${message.color}`}>{message.message}</p>}
                         <form onSubmit={handleSubmit}>
-                            <label>Who do you want to invite??</label>
-                            <input className="invitation-input" onChange={e => setInvited(e.target.value)} type="text" value={invited} />
+                            <input className="invitation-input" onChange={e => setInvited(e.target.value)} type="text" value={invited} placeholder="Name of the user" />
                             <button type="submit">Invite</button>
                         </form>
                     </div> 

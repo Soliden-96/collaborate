@@ -1,0 +1,27 @@
+.message-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    width: 300px;
+    text-align: center;
+    font-family:Calibri;
+    z-index: 9999;
+}
+
+.close-message {
+    margin:15px auto;
+    color:white;
+    background-color: red;
+    border:none;
+    border-radius: 10%;
+}
+
+.close-message:hover {
+    cursor:pointer;
+}
+

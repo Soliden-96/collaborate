@@ -21,7 +21,6 @@
     </head>
     <body>
         <div id="project-info" data-project="{{ project.id }}"  data-user="{{ request.user.id }}" data-username="{{ request.user.username}}" data-is_admin="{{ is_admin }}">
-        <h3>You are logged in as {{ request.user.username }} on {{ project.title }}</h3>
         </div>
         <div id="root"></div>
         <script type="module" src="http://localhost:5173/service/static/src/project-template.jsx"></script>    

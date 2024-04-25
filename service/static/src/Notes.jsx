@@ -1,15 +1,18 @@
 import  React ,{ useEffect, useState, useRef } from 'react'
 import Cookies from 'js-cookie';
 import ConfirmationWindow from './ConfirmationWindow.jsx'
+import MessageModal from './MessageModal.jsx'
 import './Notes.css'
 
 export default function Notes({projectId, currentUsername, isAdmin}) {
+    const [message,setMessage] = useState('');
     const [notes, setNotes] = useState([]);
     const [showNewNoteModal,setShowNewNoteModal] = useState(false);
     const [isLoading,setIsLoading] = useState(false);
     const [maxNotes,setMaxNotes] = useState(false);
     const notesSocketRef = useRef(null);
-    const notesNumberRef = useRef(0)
+    const notesNumberRef = useRef(0);
+    const totalNotesRef = useRef(0);
 
     useEffect(() => {
         
@@ -36,17 +39,27 @@ export default function Notes({projectId, currentUsername, isAdmin}) {
             const data = JSON.parse(e.data);
             console.log(data.type);
             if (data.type=='notes') {
+                
                 setNotes(data.notes);
                 notesNumberRef.current = data.notes.length;
+                totalNotesRef.current = data.total_notes;
+            
             } else if (data.type=='new_note') {
+                
                 setNotes((notes) => ([
                     data.new_note,
                     ...notes
                 ]));
                 notesNumberRef.current ++;
+                totalNotesRef.current ++;
+            
             } else if (data.type=='delete_note') {
+                
                 setNotes(notes => notes.filter(n => n.id !== data.note_id));
+                totalNotesRef.current--;
+            
             } else if (data.type=='edit_note') {
+                
                 setNotes(notes => notes.map((note) => {
                     if (note.id===data.note_id) {
                         return {
@@ -78,6 +91,11 @@ export default function Notes({projectId, currentUsername, isAdmin}) {
 
     
     function handleNewNote(content) {
+        if(!content || content.trim() === '') {
+            setMessage('Please provide content for your note');
+            return
+        }
+
         notesSocketRef.current.send(JSON.stringify({
             'type': 'new_note',
             'content':content,
@@ -99,6 +117,11 @@ export default function Notes({projectId, currentUsername, isAdmin}) {
     }
 
     function editNote(noteId,noteContent) {
+        if (!noteContent || noteContent.trim() === '') {
+            setMessage('Please provide content for your note');
+            return
+        }
+
         notesSocketRef.current.send(JSON.stringify({
             'type':'edit_note',
             'note_id':noteId,
@@ -117,8 +140,9 @@ export default function Notes({projectId, currentUsername, isAdmin}) {
     
 
     function loadMoreNotes() {
-        if (notesNumberRef.current % 9 == 0 && notesNumberRef.current > 0 ){
-            const start = notesNumberRef.current + 1;
+        if (notesNumberRef.current >= 9 && notesNumberRef.current < totalNotesRef.current){
+            console.log('loading more notes');
+            const start = notesNumberRef.current;
             const end = notesNumberRef.current + 9;
             console.log(start);
             console.log(end);
@@ -146,6 +170,7 @@ export default function Notes({projectId, currentUsername, isAdmin}) {
 
     return (
         <>
+        {message && <MessageModal message={message} resetMessage={setMessage} />}
         <div style={{textAlign:"center"}}>{notesNumberRef.current}</div>
         <div className="new-note-button-div">
             <button className="new-note-button" onClick={() => setShowNewNoteModal(!showNewNoteModal)}>New Note</button>

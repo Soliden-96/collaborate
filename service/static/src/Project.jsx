@@ -23,34 +23,37 @@ const tools = {
 
 
 export default function Project({}) {
-  const [selectedTool, setSelectedTool] = useState('');
+  const [selectedTool, setSelectedTool] = useState('Invite');
   let currentTool = null;
   if (selectedTool) {
     currentTool = tools[selectedTool].component;
   }
   console.log(isAdmin);
 
-  return (
+  function goBack() {
+    window.location.href = '/';
+  }
+
+  return ( 
       <>
-      {isAdmin && <div>You are an admin on this project</div>}
-      
+        <button className="back-button" onClick={goBack}><i className="fa-solid fa-arrow-left-long"></i></button> 
         <div style={{ textAlign:'center' }}>
-        <div className="menu-bar">
-            {Object.keys(tools).map(tool => (
-                <button 
-                    key={tools[tool].name}
-                    id={tools[tool].name}
-                    title={tools[tool].name}
-                    className={selectedTool===tools[tool].name ? 'selected-tool':'not-selected'}
-                    onClick={() => setSelectedTool(tools[tool].name)}
-                >
-                    {tools[tool].name}
-                </button>
-            ))} 
+            <div className="menu-bar">
+                {Object.keys(tools).map(tool => (
+                    <button 
+                        key={tools[tool].name}
+                        id={tools[tool].name}
+                        title={tools[tool].name}
+                        className={selectedTool===tools[tool].name ? 'selected-tool':'not-selected'}
+                        onClick={() => setSelectedTool(tools[tool].name)}
+                    >
+                        {tools[tool].name}
+                    </button>
+                ))} 
+            </div>
         </div>
-        </div>
-      <Tool currentTool={currentTool} projectId={projectId} userId={userId} currentUsername={currentUsername} isAdmin={isAdmin} />
-      <Chat projectId={projectId} currentUsername={currentUsername} />
+        <Tool currentTool={currentTool} projectId={projectId} userId={userId} currentUsername={currentUsername} isAdmin={isAdmin} />
+        <Chat projectId={projectId} currentUsername={currentUsername} />
       </>
   )
 }

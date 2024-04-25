@@ -1,4 +1,5 @@
 import React from 'react'
+import './ConfirmationWindow.css'
 
 export default function ConfirmationWindow({message, onConfirm, onCancel}) {
     return (

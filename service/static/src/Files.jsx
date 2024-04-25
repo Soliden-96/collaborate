@@ -1,7 +1,7 @@
 import  React ,{ useEffect, useState, useRef } from 'react'
 import Cookies from 'js-cookie';
 import ConfirmationWindow from './ConfirmationWindow.jsx';
-
+import MessageModal from './MessageModal.jsx'
 import './Files.css';
 
 // For real-time files need to use Base64 encoding, and decoding on the backend
@@ -134,7 +134,7 @@ function FileComponent({file, projectId, currentUsername, handleDeleteFile, isAd
                 </button>
                 {(file.uploaded_by === currentUsername || isAdmin) && <button className="delete-file-btn" onClick={() => askDeleteFile(file.id)}>&#x2717;</button>}
             </div>       
-        </div>
+        </div> 
         {showConfirmation && (
             <ConfirmationWindow 
                 message="Are you sure you want to delete this file?"
@@ -151,9 +151,20 @@ function FileUploadArea({projectId, addFile}) {
     const [fileToUpload, setFileToUpload] = useState('');
     const [uploadAs, setUploadAs] = useState('');
     const [message,setMessage] = useState('');
+    const [showFileModal, setShowFileModal] = useState(false);
 
     function uploadFile(e) {
         e.preventDefault();
+        if (!fileToUpload) {
+            setMessage('Please provide a file to upload');
+            return
+        }
+
+        if (!uploadAs || uploadAs.trim() === '') {
+            setMessage('Please provide a name for you file');
+            return
+        }
+
         const csrfToken = Cookies.get('csrftoken');
         let formData = new FormData();
 
@@ -180,24 +191,35 @@ function FileUploadArea({projectId, addFile}) {
             return response.json();
         })
         .then(result => {
-            setMessage(result.message);
             setFileToUpload(null);
             setUploadAs('');
             addFile(result.file);
+            setShowFileModal(false);
         })
         .catch(error => {
             console.log(error);
         })  
     }
 
-    return ( 
-        <div className="upload-area">
-            <form onSubmit={uploadFile} >
+    return (
+        <>
+        <div>
+            <button className="new-file-btn" onClick={() => setShowFileModal(!showFileModal)}>New File</button>
+        </div>
+        {showFileModal &&
+        <div className="upload-modal">
+            <h3>Upload File</h3>
+            <form className="upload-form" onSubmit={uploadFile} >
                 <input type="file" onChange={(e) => setFileToUpload(e.target.files[0])} />
                 <input type="text" onChange={(e) => setUploadAs(e.target.value)} value={uploadAs} placeholder="File name" />
-                <button type="submit">Upload</button>
+                <div className="upload-modal-btns">
+                    <button type="submit"><i className="fa-solid fa-upload"></i></button>
+                    <button className="close-modal-btn" onClick={(e) => {e.preventDefault();setShowFileModal(false);}}>X</button>
+                </div>
             </form>
-            {message && <p>{message}</p>}
+            {message && <MessageModal message={message} resetMessage={setMessage} /> }
         </div>
+        }
+        </>
     )
 }

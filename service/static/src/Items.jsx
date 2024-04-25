@@ -1,9 +1,11 @@
 import  React ,{ useEffect, useState, useRef } from 'react'
 import Cookies from 'js-cookie';
-import ConfirmationWindow from './ConfirmationWindow';
+import ConfirmationWindow from './ConfirmationWindow.jsx';
+import MessageModal from './MessageModal.jsx';
 import "./Items.css";
 
 export default function Items({ projectId, currentUsername, isAdmin }) {
+    const [message,setMessage] = useState('');
     const [items, setItems] = useState([]);
     const [comments, setComments] = useState({});
     const [newCommentText, setNewCommentText] = useState({});
@@ -98,6 +100,14 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
   
     function handleCreateItem(title,description) {
       console.log('sending item');
+      if (!title || title.trim() === '') {
+        setMessage('Please provide a title');
+        return
+      }
+      if (!description || description.trim() === '') {
+        setMessage('Please provide a description'); 
+        return
+      }
       // Handle item creation...
       
       itemSocketRef.current.send(JSON.stringify({
@@ -113,6 +123,10 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
     function addComment(item_id) {
       console.log('sending comment');
       const text = newCommentText[item_id];
+      if (!text || text.trim() === '') {
+        setMessage('This comment is empty');
+        return
+      }
       console.log(text);
       if (!isToggled[item_id]) {
         toggleThread(item_id);
@@ -175,7 +189,11 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
   
     return (
       <>
-        <button onClick={() => setShowItemModal(!showItemModal)}>Create Item</button>
+      {message && <MessageModal message={message} resetMessage={setMessage} />}
+      <div className="items-page">
+        <div className="create-item-btn-div">
+          <button onClick={() => setShowItemModal(!showItemModal)}>Create a new Item</button>
+        </div>
         {showItemModal && <NewItemModal handleCreateItem={handleCreateItem} closeItemModal={closeItemModal} />}
         <div className="items">
           {items
@@ -199,9 +217,10 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
         </div>
         <div className="items-pages">
           {pageButtons.map((button,index) => (
-            <button key={index} onClick={() => setSelectedPage(index)} className="page-btn">{index + 1}</button>
+            <button key={index} onClick={() => setSelectedPage(index)} className={selectedPage == index ? "page-btn-selected" : "page-btn"}>{index + 1}</button>
           ))}
         </div>
+      </div>
       </>
     );
   }}
@@ -250,35 +269,37 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
 
     return (
       <>
-      <div className="item" key={item.item_id}>
-        {(item.created_by === currentUsername || isAdmin) && <button className="delete-item" onClick={() => setShowItemConfirmation(true)}>X</button>}
-        <div className="title">{item.title}</div>
-        <div className="description">{item.description}</div>
-        <div className="timestamp">Item opened on {item.timestamp} by <span>{item.created_by}</span></div>
-      </div>
+      <div className="item-section">
+        <div className="item" key={item.item_id}>
+          {(item.created_by === currentUsername || isAdmin) && <button className="delete-item" onClick={() => setShowItemConfirmation(true)}>X</button>}
+          <div className="title">{item.title}</div>
+          <div className="description">{item.description}</div>
+          <div className="timestamp">Item opened on {item.timestamp} by <span>{item.created_by}</span></div>
+        </div>
 
-      {showItemConfirmation && (
-        <ConfirmationWindow
-          message="Are you sure you want to delete this item ?"
-          onConfirm={confirmDelete}
-          onCancel={cancelDelete}
-        />
-      )}
-
-      <button className={`toggle-comments ${isToggled[item.item_id] ? 'thread-shown' : 'thread-hidden'}`} onClick={() => onToggleThread(item.item_id)}>
-      &#10148;
-      </button>
-       
-      {isToggled[item.item_id] && <CommentsList comments={comments} currentUsername={currentUsername} itemId={item.item_id} handleDeleteComment={handleDeleteComment} isAdmin={isAdmin} />}
-  
-      <div className="add-comment">
-          <textarea
-            placeholder="Comment"
-            value={newCommentText[item.item_id] || ''}
-            onChange={(e) => onNewCommentChange(item.item_id, e.target.value)}
+        {showItemConfirmation && (
+          <ConfirmationWindow
+            message="Are you sure you want to delete this item ?"
+            onConfirm={confirmDelete}
+            onCancel={cancelDelete}
           />
-          <button onClick={() => onAddComment(item.item_id)}>Add new comment</button>
-      </div>
+        )}
+
+        <button className={`toggle-comments ${isToggled[item.item_id] ? 'thread-shown' : 'thread-hidden'}`} onClick={() => onToggleThread(item.item_id)}>
+        &#10148;
+        </button>
+        
+        {isToggled[item.item_id] && <CommentsList comments={comments} currentUsername={currentUsername} itemId={item.item_id} handleDeleteComment={handleDeleteComment} isAdmin={isAdmin} />}
+    
+        <div className="add-comment">
+            <textarea
+              placeholder="Comment"
+              value={newCommentText[item.item_id] || ''}
+              onChange={(e) => onNewCommentChange(item.item_id, e.target.value)}
+            />
+            <button onClick={() => onAddComment(item.item_id)}><i className="fa-regular fa-message comment-icon"></i></button>
+        </div>
+    </div>
     </>
     )
   }

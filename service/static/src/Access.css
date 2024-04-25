@@ -4,7 +4,7 @@
 
 .not-toggled, .toggled {
   display: inline-block; /* Change display to inline-block */
-  transition-duration: 0.2s;
+  transition-duration: 0.2s; 
 }
 
 .toggled {

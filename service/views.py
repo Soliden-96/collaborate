@@ -275,7 +275,7 @@ def upload_file(request):
     )
     file_to_store.save()
  
-    return JsonResponse({"message":"File stored successfully", "file":file_to_store.serialize()}, status=200)
+    return JsonResponse({"file":file_to_store.serialize()}, status=200)
 
 # Check if users on project is todo
 def get_project_files(request,projectId):
