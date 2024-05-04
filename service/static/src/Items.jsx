@@ -36,7 +36,7 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
       );
       console.log('connection created');
 
-      itemSocket.onmessage = function (e) {
+      itemSocket.onmessage = function (e) { 
         console.log('Message received');
         const data = JSON.parse(e.data);
         console.log(data);

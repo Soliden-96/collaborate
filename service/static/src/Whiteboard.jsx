@@ -130,7 +130,7 @@ export default function WhiteboardMenu({projectId, userId, currentUsername, isAd
     } else {
         return (
             <>
-            <button onClick={() => setSelectedWhiteboardId('')}>Back</button>
+            <button className="to-whiteboard-menu" onClick={() => setSelectedWhiteboardId('')}>Whiteboard Menu</button>
             <Whiteboard projectId={projectId} userId={userId} selectedWhiteboard={selectedWhiteboardId} selectedTitle={selectedTitle} />
             </>
         )
@@ -273,15 +273,14 @@ function Canvas({projectId, userId, initialData, whiteboardId, title}) {
 
     return (
         <>
-        <h1 className="title" style={{ textAlign: "center" }}>{title}</h1>
-        <div style={{ height: "500px" }}>
-            <Excalidraw 
-            initialData={initialData}
-            UIOptions={{tools:{image:false}}}
-            excalidrawAPI={(api)=> setExcalidrawAPI(api)}
-            onPointerDown={(activeTool) => handlePointerDown(activeTool)}
-            />
-        </div>
+            <div style={{ height: "550px" }}>
+                <Excalidraw 
+                initialData={initialData}
+                UIOptions={{tools:{image:false}}}
+                excalidrawAPI={(api)=> setExcalidrawAPI(api)}
+                onPointerDown={(activeTool) => handlePointerDown(activeTool)}
+                />
+            </div>
         </>
     )
 }

@@ -127,7 +127,7 @@ function FileComponent({file, projectId, currentUsername, handleDeleteFile, isAd
             <p className="file-name">{file.name} {file.type && <span className="file-type">( {file.type} )</span>}</p>
             <p className="file-uploaded-by"><strong>From:</strong> {file.uploaded_by}</p>
             <p className="file-timestamp">{file.timestamp}</p>
-            {/* Add a link for downloading the file */}
+            {/* Add a link for downloading the file */} 
             <div className="file-actions">
                 <button className="download-btn" onClick={handleDownload}>
                     <i className="fa-solid fa-download"></i>
@@ -211,7 +211,7 @@ function FileUploadArea({projectId, addFile}) {
             <h3>Upload File</h3>
             <form className="upload-form" onSubmit={uploadFile} >
                 <input type="file" onChange={(e) => setFileToUpload(e.target.files[0])} />
-                <input type="text" onChange={(e) => setUploadAs(e.target.value)} value={uploadAs} placeholder="File name" />
+                <input type="text" onChange={(e) => setUploadAs(e.target.value)} value={uploadAs} autofocus placeholder="File name" />
                 <div className="upload-modal-btns">
                     <button type="submit"><i className="fa-solid fa-upload"></i></button>
                     <button className="close-modal-btn" onClick={(e) => {e.preventDefault();setShowFileModal(false);}}>X</button>

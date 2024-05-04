@@ -152,66 +152,72 @@ export default function Invite({ projectId, isAdmin, userId }) {
 
     return (
         <>
-        {confirmationMessage && <ConfirmationWindow message={confirmationMessage} onConfirm={() => confirmationFunction()}  onCancel={() => cancelFunction()} />}
-        <div className="home-page">
-            <div className="project-section">
-                <div className="project-header">
-                    <h2 className="project-title">{title} {isAdmin && <i className="fa-solid fa-user-tie gold-user"></i>}</h2>
-                    <p className="project-description">{description}</p>
+        <div className="home-page-container">
+            {confirmationMessage && <ConfirmationWindow message={confirmationMessage} onConfirm={() => confirmationFunction()}  onCancel={() => cancelFunction()} />}
+            <div className="home-page">
+                <div className="project-section">
+                    <div className="project-header">
+                        <h2 className="project-title">{title} {isAdmin && <i className="fa-solid fa-user-tie gold-user"></i>}</h2>
+                        <p className="project-description">{description}</p>
+                    </div>
+                    
+                    <div className="project-options">
+                        <button onClick={() => {
+                            setConfirmationMessage("Are you sure that you want to leave this project??");
+                            setConfirmationFunction(() => () => removeFromProject(userId))}}
+                            className="leave-project-btn">Leave project</button>
+                        {isAdmin && <button onClick={() => {
+                                        setConfirmationMessage("Are you sure that you want to close this project??");
+                                        setConfirmationFunction(() => () => closeProject())}}
+                                        className="close-project-btn">Close Project</button>}
+                    </div>
                 </div>
                 
-                <div className="project-options">
-                    <button onClick={() => {
-                        setConfirmationMessage("Are you sure that you want to leave this project??");
-                        setConfirmationFunction(() => () => removeFromProject(userId))}}
-                         className="leave-project-btn">Leave project</button>
-                    {isAdmin && <button onClick={() => {
-                                    setConfirmationMessage("Are you sure that you want to close this project??");
-                                    setConfirmationFunction(() => () => closeProject())}}
-                                    className="close-project-btn">Close Project</button>}
-                </div>
-            </div>
-            
-            
-            <div className="participants-section">
-                {isAdmin && (
-                    <div className="invitations-div">
-                        <h4>Invite people to collaborate on your project</h4>
-                        {message && <p className={`message-color-${message.color}`}>{message.message}</p>}
-                        <form onSubmit={handleSubmit}>
-                            <input className="invitation-input" onChange={e => setInvited(e.target.value)} type="text" value={invited} placeholder="Name of the user" />
-                            <button type="submit">Invite</button>
-                        </form>
-                    </div> 
-                )}
+                
+                <div className="participants-section">
+                    {isAdmin && (
+                        <div className="invitations-div">
+                            <h4>Invite people to collaborate on your project</h4>
+                            {message && <p className={`message-color-${message.color}`}>{message.message}</p>}
+                            <form onSubmit={handleSubmit}>
+                                <input className="invitation-input" onChange={e => setInvited(e.target.value)} type="text" value={invited} placeholder="Name of the user" />
+                                <button type="submit">Invite</button>
+                            </form>
+                        </div> 
+                    )}
 
-                    <div className="participants-list-div">
-                        <h4 className="participants-title">Participants</h4>
-                        <div className="list">
-                        {Object.values(participants).map((participant,index) => (
-                            <div key={participant.id} className="participant">
-                                {participant.name}
-                                <span className="participant-options">
-                                    {isAdmin ? (
-                                    <button onClick={() => changeAdminCondition(participant.id)} 
-                                        className={participant.is_admin ? "is-admin-btn" : "not-admin-btn"}>
+                        <div className="participants-list-div">
+                            <h4 className="participants-title">Participants</h4>
+                            <div className="list">
+                            {
+                            participants.length > 0 ? 
+                            (Object.values(participants).map((participant,index) => (
+                                <div key={participant.id} className="participant">
+                                    {participant.name}
+                                    <span className="participant-options">
+                                        {isAdmin ? (
+                                        <button onClick={() => changeAdminCondition(participant.id)} 
+                                            className={participant.is_admin ? "is-admin-btn" : "not-admin-btn"}>
+                                                {participant.is_admin ? <i className="fa-solid fa-user-tie gold-user"></i> : <i className="fa-solid fa-user-tie grey-user"></i>}
+                                        </button>
+                                        ) : (
+                                        <button className={participant.is_admin ? "is-admin-btn" : "not-admin-btn"}>
                                             {participant.is_admin ? <i className="fa-solid fa-user-tie gold-user"></i> : <i className="fa-solid fa-user-tie grey-user"></i>}
-                                    </button>
-                                    ) : (
-                                    <button className={participant.is_admin ? "is-admin-btn" : "not-admin-btn"}>
-                                        {participant.is_admin ? <i className="fa-solid fa-user-tie gold-user"></i> : <i className="fa-solid fa-user-tie grey-user"></i>}
-                                    </button>
-                                    )}
-                                    {isAdmin && <button onClick={() => {
-                                                    setConfirmationMessage(`Are you sure that you want to exclude ${participant.name} from the project?? `);
-                                                    setConfirmationFunction(() => () => removeFromProject(participant.id))}} 
-                                                    className="remove-from-project-btn">X</button>}
-                                </span>
+                                        </button>
+                                        )}
+                                        {isAdmin && <button onClick={() => {
+                                                        setConfirmationMessage(`Are you sure that you want to exclude ${participant.name} from the project?? `);
+                                                        setConfirmationFunction(() => () => removeFromProject(participant.id))}} 
+                                                        className="remove-from-project-btn">X</button>}
+                                    </span>
+                                </div>
+                            ))) : 
+                            (<div style={{textAlign:"center"}}>You are the only participant at the moment</div>)
+                            }
                             </div>
-                        ))}
                         </div>
-                    </div>
-            </div>  
+                </div>  
+            </div>
         </div>
         </>
     )

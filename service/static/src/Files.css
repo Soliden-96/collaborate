@@ -7,7 +7,9 @@
 
 .file-component {
     position:relative;
-    border:solid 1px black;
+    border:none;
+    border-radius:7px;
+    background-color:rgba(255, 255, 255, 0.5);
     width:250px;
     min-height:175px;
     text-align:center;
@@ -76,9 +78,10 @@
     top:50%;
     left:50%;
     transform:translate(-50%,-50%);
-    background-color: white;
+    background-color:rgba(255, 255, 255, 0.5);
     z-index:999;
     border:solid 1px black;
+    border-radius: 7px;
     height:200px;
     width:300px;
     text-align:center;

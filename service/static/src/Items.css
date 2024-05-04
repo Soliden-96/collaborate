@@ -13,9 +13,9 @@
     left:50%;
     transform: translate(-50%,-50%);
     z-index: 999;
-    border:solid 1px blue;
-    background-color: #f6f8fa;
-    height:20rem;
+    border:solid 1px black;
+    background-color:rgba(255, 255, 255);
+    height:20rem; 
     width:50rem;
     border-radius:8px;
 } 
@@ -28,7 +28,7 @@
 
 .item-title-input input {
     border:none;
-    background-color: #f6f8fa;
+    background-color:rgba(255, 255, 255, 0.0);
     width:99%
 }
 
@@ -42,7 +42,7 @@
 
 .item-description-input textarea {
     border:none;
-    background-color: #f6f8fa;
+    background-color:rgba(255, 255, 255, 0.0);
     height:100%;
     width:99%;
 }
@@ -67,14 +67,15 @@
 }
 
 .item-modal-buttons {
-    background-color: #f6f8fa;
+    background-color:rgba(255, 255, 255, 0.0);
+    text-align: center;
 }
 
 .item-modal-buttons button {
     margin-left:10px;
     margin-right: 10px;
     margin-bottom:4px;
-    border-radius:100%;
+    border-radius:8px;
     border: none;
     height:30px;
     width:30px;
@@ -105,7 +106,7 @@
 }
 
 .items {
-    border: 1px solid rgb(158, 158, 248);
+    background-color:rgba(255, 255, 255, 0.5);
     border-radius:7px;
     max-width:1500px;
     margin-left:30px;

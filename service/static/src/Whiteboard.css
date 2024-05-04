@@ -58,3 +58,26 @@
     background-color: #ff6666;
     cursor:pointer;
 }
+
+.to-whiteboard-menu {
+    position:relative;
+    left:25%;
+}
+
+@media (max-width:1220px) {
+    .to-whiteboard-menu {
+        left:50%;
+        transform:translate(-50%,0);
+    }
+}
+
+.to-whiteboard-menu:hover {
+    cursor:pointer;
+}
+
+.whiteboard {
+    margin-top:4px;
+}
+
+
+
