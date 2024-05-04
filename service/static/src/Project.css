@@ -1,3 +1,13 @@
+body {
+    
+    background-image: url('dist/top-view-stationery-supplies-table.jpg');
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center; 
+    background-repeat: no-repeat; 
+    
+}
+
 .back-button {
     position:absolute;
     top:10px;

@@ -34,8 +34,9 @@ export default function Project({}) {
     window.location.href = '/';
   }
 
-  return ( 
-      <>
+  return (
+    <> 
+    <div className="page-container">
         <button className="back-button" onClick={goBack}><i className="fa-solid fa-arrow-left-long"></i></button> 
         <div style={{ textAlign:'center' }}>
             <div className="menu-bar">
@@ -51,10 +52,12 @@ export default function Project({}) {
                     </button>
                 ))} 
             </div>
+            
         </div>
         <Tool currentTool={currentTool} projectId={projectId} userId={userId} currentUsername={currentUsername} isAdmin={isAdmin} />
         <Chat projectId={projectId} currentUsername={currentUsername} />
-      </>
+    </div>
+    </>
   )
 }
 

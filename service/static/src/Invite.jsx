@@ -1,12 +1,15 @@
 import  React ,{ useEffect, useState, useRef } from 'react'
 import Cookies from 'js-cookie';
 import './Invite.css'; 
+import ConfirmationWindow from './ConfirmationWindow';
 
 export default function Invite({ projectId, isAdmin, userId }) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [invited, setInvited] = useState('');
     const [message, setMessage] = useState({});
+    const [confirmationMessage,setConfirmationMessage] = useState('');
+    const [confirmationFunction,setConfirmationFunction] = useState(() => () => {});
     const [participants, setParticipants] = useState({});
 
     useEffect(() => {
@@ -15,7 +18,6 @@ export default function Invite({ projectId, isAdmin, userId }) {
         .then(data => {
             console.log(data.participants)
             setParticipants(data.participants);
-            console.log(data.description);
             setTitle(data.project['title']);
             setDescription(data.project["description"]);
         })
@@ -106,6 +108,7 @@ export default function Invite({ projectId, isAdmin, userId }) {
             if (result.message==='Project abandoned') {window.location.href="/"}
             // Using destructuring to remove from an object
             else {
+                setConfirmationMessage('');
                 setParticipants(prevParticipants => {
                 const {[participantId]:_, ...remainingParticipants} = prevParticipants;
                 return remainingParticipants
@@ -142,10 +145,14 @@ export default function Invite({ projectId, isAdmin, userId }) {
         })
     }
 
+    function cancelFunction() {
+        setConfirmationMessage('');
+    }
     
 
     return (
         <>
+        {confirmationMessage && <ConfirmationWindow message={confirmationMessage} onConfirm={() => confirmationFunction()}  onCancel={() => cancelFunction()} />}
         <div className="home-page">
             <div className="project-section">
                 <div className="project-header">
@@ -154,8 +161,14 @@ export default function Invite({ projectId, isAdmin, userId }) {
                 </div>
                 
                 <div className="project-options">
-                    <button onClick={() => removeFromProject(userId)} className="leave-project-btn">Leave project</button>
-                    {isAdmin && <button onClick={closeProject} className="close-project-btn">Close Project</button>}
+                    <button onClick={() => {
+                        setConfirmationMessage("Are you sure that you want to leave this project??");
+                        setConfirmationFunction(() => () => removeFromProject(userId))}}
+                         className="leave-project-btn">Leave project</button>
+                    {isAdmin && <button onClick={() => {
+                                    setConfirmationMessage("Are you sure that you want to close this project??");
+                                    setConfirmationFunction(() => () => closeProject())}}
+                                    className="close-project-btn">Close Project</button>}
                 </div>
             </div>
             
@@ -189,7 +202,10 @@ export default function Invite({ projectId, isAdmin, userId }) {
                                         {participant.is_admin ? <i className="fa-solid fa-user-tie gold-user"></i> : <i className="fa-solid fa-user-tie grey-user"></i>}
                                     </button>
                                     )}
-                                    {isAdmin && <button onClick={() => removeFromProject(participant.id)} className="remove-from-project-btn">X</button>}
+                                    {isAdmin && <button onClick={() => {
+                                                    setConfirmationMessage(`Are you sure that you want to exclude ${participant.name} from the project?? `);
+                                                    setConfirmationFunction(() => () => removeFromProject(participant.id))}} 
+                                                    className="remove-from-project-btn">X</button>}
                                 </span>
                             </div>
                         ))}

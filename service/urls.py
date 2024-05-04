@@ -27,4 +27,4 @@ urlpatterns = [
     path("get_whiteboards/<int:project_id>", views.get_whiteboards, name="get_whiteboards"),
     path("create_whiteboard", views.create_whiteboard, name="create_whiteboard"),
     path("delete_whiteboard", views.delete_whiteboard, name="delete_whiteboard"),
-] 
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
