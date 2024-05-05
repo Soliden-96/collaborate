@@ -78,17 +78,40 @@
     top:50%;
     left:50%;
     transform:translate(-50%,-50%);
-    background-color:rgba(255, 255, 255, 0.5);
+    background-color:rgba(255, 255, 255, 0.9);
     z-index:999;
     border:solid 1px black;
     border-radius: 7px;
-    height:200px;
+    min-height:250px;
     width:300px;
     text-align:center;
     font-family:Calibri;
 }
 
-.upload-form input{
+.upload-form {
+    padding:10px;
+}
+
+.drop-area {
+    border:dashed 1px blue;
+    padding:20px;
+}
+
+.browse {
+    color:orange;
+    margin-top:3px;
+}
+
+.file-upload-label:hover {
+    cursor:pointer;
+    margin-top:3px;
+}
+
+.file-input {
+    display:none;
+}
+
+.file-name-input{
     display:block;
     margin:15px auto;
 }

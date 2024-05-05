@@ -178,7 +178,7 @@ export default function Invite({ projectId, isAdmin, userId }) {
                     {isAdmin && (
                         <div className="invitations-div">
                             <h4>Invite people to collaborate on your project</h4>
-                            {message && <p className={`message-color-${message.color}`}>{message.message}</p>}
+                            {message && <strong className={`message-color-${message.color}`}>{message.message}</strong>}
                             <form onSubmit={handleSubmit}>
                                 <input className="invitation-input" onChange={e => setInvited(e.target.value)} type="text" value={invited} placeholder="Name of the user" />
                                 <button type="submit">Invite</button>
@@ -190,7 +190,7 @@ export default function Invite({ projectId, isAdmin, userId }) {
                             <h4 className="participants-title">Participants</h4>
                             <div className="list">
                             {
-                            participants.length > 0 ? 
+                            Object.values(participants).length > 0 ? 
                             (Object.values(participants).map((participant,index) => (
                                 <div key={participant.id} className="participant">
                                     {participant.name}

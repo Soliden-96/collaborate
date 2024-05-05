@@ -201,6 +201,14 @@ function FileUploadArea({projectId, addFile}) {
         })  
     }
 
+    function handleDrop(e) {
+        e.preventDefault();
+        const droppedFiles = e.dataTransfer.files;
+        if (droppedFiles.length > 0) {
+            setFileToUpload(droppedFiles[0]);
+        }
+    }
+
     return (
         <>
         <div>
@@ -209,9 +217,34 @@ function FileUploadArea({projectId, addFile}) {
         {showFileModal &&
         <div className="upload-modal">
             <h3>Upload File</h3>
-            <form className="upload-form" onSubmit={uploadFile} >
-                <input type="file" onChange={(e) => setFileToUpload(e.target.files[0])} />
-                <input type="text" onChange={(e) => setUploadAs(e.target.value)} value={uploadAs} autofocus placeholder="File name" />
+            <form 
+                className="upload-form" 
+                onSubmit={uploadFile}
+                onDragEnter={(e) => e.preventDefault()}
+                onDragLeave={(e) => e.preventDefault()}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={handleDrop}
+            >
+                
+                <div className="drop-area">
+                 {fileToUpload !== '' && fileToUpload !== null ? (
+                    <p className="file-name">{fileToUpload.name}</p> ) : (
+                    <i className="fa-solid fa-upload"></i>
+                    )
+                }   
+                    <div className="drag">
+                        Drop your file here or 
+                        <div className="browse">
+                            <label
+                                className="file-upload-label"
+                                onClick={() => document.getElementById('get-file').click()}
+                            >Browse</label>
+                            <input className="file-input" id="get-file" type="file" data-max-size="10240" onChange={(e) => setFileToUpload(e.target.files[0])} />
+                            
+                        </div>
+                    </div>
+                </div>
+                <input className="file-name-input" type="text" onChange={(e) => setUploadAs(e.target.value)} value={uploadAs} autoFocus placeholder="File name" />
                 <div className="upload-modal-btns">
                     <button type="submit"><i className="fa-solid fa-upload"></i></button>
                     <button className="close-modal-btn" onClick={(e) => {e.preventDefault();setShowFileModal(false);}}>X</button>

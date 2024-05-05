@@ -202,7 +202,7 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
             <Item
               key={item.item_id}
               item={item}
-              comments={comments[item.item_id]}
+              comments={comments[item.item_id]} 
               newCommentText={newCommentText}
               onToggleThread={toggleThread}
               onAddComment={addComment}

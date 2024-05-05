@@ -20,6 +20,21 @@
     margin:0 auto;
     padding-left:20px;
     padding-right:20px;
+    max-height:350px;
+    overflow-y:scroll;
+}
+
+.select-whiteboard::-webkit-scrollbar {
+    width: 3px;
+}
+
+.select-whiteboard::-webkit-scrollbar-track {
+    display: none;
+}
+
+.select-whiteboard::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    background-color: #8e8d8d;
 }
 
 .project-whiteboard {
@@ -30,6 +45,7 @@
 
 .whiteboard-title {
     flex-grow:1;
+    padding:2px;
 }
 
 .whiteboard-title,.delete-btn {
@@ -39,8 +55,8 @@
 
 .whiteboard-title:hover {
     cursor:pointer;
-    font-weight: bold;
-    background-color: aliceblue;
+    font-weight: bolder;
+    
 }
 
 .delete-btn {
