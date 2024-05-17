@@ -181,7 +181,7 @@ export default function Invite({ projectId, isAdmin, userId }) {
                             {message && <strong className={`message-color-${message.color}`}>{message.message}</strong>}
                             <form onSubmit={handleSubmit}>
                                 <input className="invitation-input" onChange={e => setInvited(e.target.value)} type="text" value={invited} placeholder="Name of the user" />
-                                <button type="submit">Invite</button>
+                                <button className="invitation-submit">Invite</button>
                             </form>
                         </div> 
                     )}
@@ -220,5 +220,5 @@ export default function Invite({ projectId, isAdmin, userId }) {
             </div>
         </div>
         </>
-    )
+    ) 
 }

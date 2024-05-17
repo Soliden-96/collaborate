@@ -11,6 +11,17 @@
     height: 15rem;
 }
 
+.new-note-button {
+    cursor:pointer;
+    background-color: rgba(255, 255, 255, 0.5);
+    box-shadow : 0 4px 6px rgb(63, 63, 63); /* Add a subtle shadow */
+    color:rgb(63,63,63);
+    border:none;
+    padding:2px;
+    border-radius:7px;
+    font-weight:bold;
+}
+
 .notes {
     flex-grow:2;
     display:flex;
@@ -159,31 +170,36 @@
     margin-left:10px;
     margin-right: 10px;
     margin-bottom:4px;
-    border-radius:100%;
-    border: none;
+    border-radius:7px;
     height:30px;
     width:30px;
 }
 .confirm-note-button {
-    background-color:  #3ed63e;
-    color: white;
-    font-weight:bold;
-    font-size:14px;
+    background-color:  white;
+    color:#3ed63e;
+    border:1px solid #3ed63e;
+    box-shadow : 0 4px 6px #3ed63e;
+    font-weight: bold;
+    font-size: 12px;
 }
 
 .confirm-note-button:hover {
     background-color: #72f772;
+    color:white;
     cursor: pointer;
 }
 
 .cancel-new-note {
-    background-color: #ff4d4d;
-    color:white;
+    background-color:white;
+    border:1px solid #ff4d4d;
+    color:  #ff4d4d;
+    box-shadow : 0 4px 6px #ff4d4d;
     font-weight: bold;
-    font-size:14px;
+    font-size: 12px;
 }
 
 .cancel-new-note:hover {
     background-color: #ff6666;
+    color:white;
     cursor: pointer;
 }

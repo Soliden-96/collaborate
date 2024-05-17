@@ -4,14 +4,14 @@ from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 import json
 
 
 from .models import *
 
 # Create your views here.
- 
+
 def index(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse("login"))
@@ -43,6 +43,7 @@ def login_view(request):
     return render(request,'service/access.html')
 
 
+@csrf_exempt
 def register_view(request):
     if request.method =="POST":
         data = json.loads(request.body)
@@ -61,7 +62,7 @@ def register_view(request):
             return JsonResponse({"message":"Username already taken"},status=400)
 
         login(request,user)
-        return HttpResponseRedirect(reverse("index"))
+        return JsonResponse({"success": True},status=200)
 
     return render(request,'service/access.html')
 
@@ -77,8 +78,8 @@ def create_project(request):
         title = request.POST.get('title')
         description = request.POST.get('description')
         # Should try to make this dynamic
-        if Project.objects.filter(title=title).exists():
-            return render(request,"service/profile.html",{"message":"This name already exists"})
+        if not title.strip() or not description.strip():
+            return render(request, "service/index.html", {"message": "Title and description are required"})
 
         new_project = Project(title=title,description=description)
         new_project.save()
@@ -105,6 +106,10 @@ def project(request,id):
 @login_required
 def get_project_info(request,project_id):
     current_project = Project.objects.get(pk=project_id)
+
+    if not ProjectMembership.objects.get(user=request.user, project=current_project):
+        return JsonResponse({"message":"You are not working on this project"},status=400)
+
     participants = {}
     for participant in ProjectMembership.objects.filter(project=current_project):
         if participant.user != request.user:
@@ -208,7 +213,8 @@ def send_invitation(request,projectId):
     invitation.save()
     return JsonResponse({"Success":True, "message":f"{invited_username} invited to join the project"},status=200)
 
-# When accepting invitation invitation doesn't disappear
+
+@login_required
 def invitation_accepted(request,invitation_id):
     if request.method != "POST":
         return JsonResponse({"message":"Invalid request"})
@@ -224,6 +230,7 @@ def invitation_accepted(request,invitation_id):
 
     return HttpResponseRedirect(reverse("project",args=[project.id]))
 
+@login_required
 def invitation_denied(request,invitation_id):
     invitation = get_object_or_404(Invitation, id=invitation_id, receiver=request.user)
     invitation.delete()
@@ -234,6 +241,12 @@ def invitation_denied(request,invitation_id):
 def get_more_messages(request,start,end,project_id):
     if request.method != "GET":
         return JsonResponse({"message":"Invalid request"},status=400)
+
+    current_project = Project.objects.get(pk=project_id)
+    
+
+    if not ProjectMembership.objects.get(user=request.user, project=current_project):
+        return JsonResponse({"message":"You are not working on this project"},status=400)
 
     messages_query = ChatMessage.objects.filter(room_id=project_id).order_by("-timestamp")[start:end + 1]
     messages = [message.serialize() for message in messages_query]
@@ -247,12 +260,18 @@ def get_more_notes(request,start,end,project_id):
         return JsonResponse({"message":"Invalid request"},status=400)
 
     current_project = Project.objects.get(pk=project_id)
+
+
+    if not ProjectMembership.objects.get(user=request.user, project=current_project):
+        return JsonResponse({"message":"You are not working on this project"},status=400)
+
     notes_query = Note.objects.filter(project=current_project).order_by("-timestamp")[start:end +1]
     notes = [note.serialize() for note in notes_query]
 
     return JsonResponse({"notes":notes},status=200)
 
 
+@login_required
 def upload_file(request):
     if request.method != "POST":
         return JsonResponse({"message":"Invalid request"},status=400)
@@ -262,6 +281,11 @@ def upload_file(request):
     project_id = request.POST.get('project_id','')
     file_extension = request.POST.get('file_extension','')
 
+    current_project = Project.objects.get(pk=project_id)
+
+    if not ProjectMembership.objects.get(user=request.user, project=current_project):
+        return JsonResponse({"message":"You are not working on this project"},status=400)
+
     print(uploaded_file)
     print(name)
     print(project_id)
@@ -269,7 +293,7 @@ def upload_file(request):
     file_to_store = File(
         uploaded_by = request.user,
         file_type = file_extension,
-        project = Project.objects.get(pk=project_id),
+        project = current_project,
         name = name,
         file = uploaded_file,
     )
@@ -278,11 +302,17 @@ def upload_file(request):
     return JsonResponse({"file":file_to_store.serialize()}, status=200)
 
 # Check if users on project is todo
+@login_required
 def get_project_files(request,projectId):
     if request.method != "GET":
         return JsonResponse({"message":"Invalid request"},status=400)
 
-    project_files = File.objects.filter(project=(Project.objects.get(pk=projectId)))
+    current_project = Project.objects.get(pk=projectId)
+
+    if not ProjectMembership.objects.get(user=request.user, project=current_project):
+        return JsonResponse({"message":"You are not working on this project"},status=400)
+
+    project_files = File.objects.filter(project=current_project)
     if not project_files:
         return JsonResponse({"files":[],},status=200)
 
@@ -317,6 +347,10 @@ def download_file(request,project_id,file_id):
 @login_required
 def get_whiteboard_elements(request,project_id,whiteboard_id):   
     current_project = Project.objects.get(pk=project_id)
+
+    if not ProjectMembership.objects.get(user=request.user, project=current_project):
+        return JsonResponse({"message":"You are not working on this project"},status=400)
+
     whiteboard = ExcalidrawInstance.objects.get(pk=whiteboard_id,project=current_project)
     elements_list = whiteboard.elements
 
@@ -326,6 +360,10 @@ def get_whiteboard_elements(request,project_id,whiteboard_id):
 @login_required
 def get_whiteboards(request,project_id):
     current_project = Project.objects.get(pk=project_id)
+
+    if not ProjectMembership.objects.get(user=request.user, project=current_project):
+        return JsonResponse({"message":"You are not working on this project"},status=400)
+
     whiteboards = ExcalidrawInstance.objects.filter(project=current_project)
     return JsonResponse({"whiteboards":[whiteboard.serialize() for whiteboard in whiteboards]},status=200)
 

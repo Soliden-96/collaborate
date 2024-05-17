@@ -1,12 +1,12 @@
-import  React ,{ useEffect, useState, useRef } from 'react';
+import  React ,{ useEffect, useState, useRef, lazy, Suspense } from 'react';
 import './Project.css';
 import Cookies from 'js-cookie';
-import Invite from './Invite.jsx';
 import Chat from './Chat.jsx';
-import Items from './Items.jsx';
-import FileRepo from './Files.jsx';
-import Notes from './Notes.jsx';
-import WhiteboardMenu from './Whiteboard.jsx';
+const Invite = React.lazy(() => import('./Invite.jsx'));
+const Items = React.lazy(() => import('./Items.jsx'));
+const FileRepo = React.lazy(() => import('./Files.jsx'));
+const Notes = React.lazy(() => import('./Notes.jsx'));
+const WhiteboardMenu = React.lazy(() => import('./Whiteboard.jsx'));
 
 
 const projectId = parseInt(document.querySelector('#project-info').dataset.project);
@@ -54,7 +54,9 @@ export default function Project({}) {
             </div>
             
         </div>
-        <Tool currentTool={currentTool} projectId={projectId} userId={userId} currentUsername={currentUsername} isAdmin={isAdmin} />
+        <Suspense>
+            <Tool currentTool={currentTool} projectId={projectId} userId={userId} currentUsername={currentUsername} isAdmin={isAdmin} />
+        </Suspense>
         <Chat projectId={projectId} currentUsername={currentUsername} />
     </div>
     </>

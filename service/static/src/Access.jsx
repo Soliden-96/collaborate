@@ -1,5 +1,6 @@
 import  React ,{ useState } from 'react'
 import './Access.css'
+import DescriptionModal from './DescriptionModal.jsx'
 import Cookies from 'js-cookie';
 
 export function Access() {
@@ -15,12 +16,14 @@ export function Access() {
   }
  
   
-  return (
+  return ( 
     <>
     <div className="app-introduction">
-      <h2>App title</h2>
-      <div className="app-description-toggle" onClick={() => setDescriptionToggled(!descriptionToggled)}>App description option  <span className={descriptionToggled ? "toggled" : "not-toggled"}>&#10148;</span></div>
-      {descriptionToggled && <p>Actual Description of the application</p>}
+      <h2 className="app-title">App title</h2>
+      <div >
+        <button className="app-description-toggle" onClick={() => setDescriptionToggled(!descriptionToggled)}>Quick Guide</button>
+      </div>
+      {descriptionToggled && <DescriptionModal />}
     </div>
     <div className="access-options">
       <Switch toLogin={toLogin}  toRegister={toRegister} />
@@ -85,8 +88,7 @@ function Login() {
   return ( 
       <>
       <div className="access-form">
-        Login here!!
-        {message && <p>{message}</p>}
+        {message && <p className="error-message">{message}</p>}
         <form onSubmit={handleSubmit}>
           <input onChange={e => setUsername(e.target.value)} type="text" placeholder="username" value={username} />
           <input onChange={e => setPassword(e.target.value)} type="password" placeholder="password" value={password} />
@@ -100,7 +102,7 @@ function Login() {
 
 function Register() {
 
-  const [username,setUsername] = useState('');
+  const [username,setUsername] = useState(''); 
   const [email,setEmail] = useState('');
   const [password,setPassword] = useState('');
   const [confirmation,setConfirmation] = useState('');
@@ -124,6 +126,9 @@ function Register() {
     .then(response => response.json())
     .then(result =>{
       console.log(result);
+      if (result.success) {
+        window.location.href = "/";
+      }
       setMessage(result.message);
     })
     .catch(error => {
@@ -140,8 +145,7 @@ function Register() {
   return (
     <>
     <div className="access-form">
-      Register
-      {message && <p>{message}</p>}
+      {message && <p className="error-message">{message}</p>}
       <form onSubmit={handleSubmit}>
         <input onChange={e => setEmail(e.target.value)} type="email" placeholder="email" value={email} />
         <input onChange={e => setUsername(e.target.value)} type="text" placeholder="username" value={username} />
@@ -153,3 +157,4 @@ function Register() {
     </>
   )
 }
+

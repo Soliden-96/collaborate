@@ -184,7 +184,7 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
     }
 
     if (loading) {
-      return ( <div>Loading</div> )
+      return ( <div className="loading-div">Loading</div> )
     } else {
   
     return (
@@ -192,11 +192,13 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
       {message && <MessageModal message={message} resetMessage={setMessage} />}
       <div className="items-page">
         <div className="create-item-btn-div">
-          <button onClick={() => setShowItemModal(!showItemModal)}>Create a new Item</button>
+          <button className="create-item-btn" onClick={() => setShowItemModal(!showItemModal)}>Add Item +</button>
         </div>
         {showItemModal && <NewItemModal handleCreateItem={handleCreateItem} closeItemModal={closeItemModal} />}
+        {items.length > 0 ? (<div>
         <div className="items">
-          {items
+          
+          {items 
             .slice(selectedPage * 3, selectedPage * 3 + 3)
             .map((item) => ( 
             <Item
@@ -220,6 +222,9 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
             <button key={index} onClick={() => setSelectedPage(index)} className={selectedPage == index ? "page-btn-selected" : "page-btn"}>{index + 1}</button>
           ))}
         </div>
+        </div>
+          ) : (<div></div>)
+        }
       </div>
       </>
     );
@@ -281,7 +286,7 @@ export default function Items({ projectId, currentUsername, isAdmin }) {
           <ConfirmationWindow
             message="Are you sure you want to delete this item ?"
             onConfirm={confirmDelete}
-            onCancel={cancelDelete}
+            onCancel={cancelDelete} 
           />
         )}
 

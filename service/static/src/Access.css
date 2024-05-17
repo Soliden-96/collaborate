@@ -1,11 +1,59 @@
-.app-introduction {
-    text-align:center;
+body {
+    background-image: url('dist/app-pic.jpg');
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center; 
+    background-repeat: no-repeat;
+    font-family:Calibri;
+}
+ 
+button {
+    cursor:pointer;
+    background-color: rgba(255, 255, 255, 0.0);
+    box-shadow : 0 4px 6px rgb(63, 63, 63); 
+    color:rgb(63,63,63);
+    border:none;
+    padding:2px;
+    border-radius:7px;
+    font-weight:bold;
 }
 
-.not-toggled, .toggled {
-  display: inline-block; /* Change display to inline-block */
-  transition-duration: 0.2s; 
+.app-introduction {
+    text-align: center;
 }
+
+.app-title {
+    margin-bottom:40px;
+}
+
+
+.description-modal {
+    margin:20px auto;
+    text-align: center;
+    border:1px solid black;
+    border-radius:7px;
+    white-space:pre-line;
+    max-width:700px;
+    max-height:600px;
+    background-color:rgba(255, 255, 255, 0.5);
+    overflow-y:scroll;
+}
+
+.description-modal::-webkit-scrollbar {
+    width: 3px;
+}
+
+.description-modal::-webkit-scrollbar-track {
+    border-radius:8px;
+    background-color: #e7e7e7;
+    border: 1px solid #cacaca;
+}
+
+.description-modal::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    background-color: #8e8d8d;
+}
+
 
 .toggled {
   transform: rotate(90deg);
@@ -14,22 +62,37 @@
 
 .access-options {
     text-align:center;
+    margin: 50px auto;
+    background-color: rgb(255,255,255,0.4); 
+    max-width:350px; 
+    border-radius:7px;
+    padding:20px;
 }
 
 .access-switch {
-    margin-bottom: 5px;
+    margin-bottom: 30px;
+    
 }
 
 .switch-register-btn {
-    margin-left:5px;
+    margin-left:20px;
 }
 
 .access-form  input{
     display:block;
-    margin:5px auto 0;
+    margin:8px auto 0;
+    background-color: rgb(255,255,255,0.0);
+    border:none;
+    outline:none;
 }
 
 .access-form button {
     display: block;
-    margin:5px auto 0;
+    margin:20px auto 0;
+}
+
+
+.error-message {
+    color:red;
+    font-weight: bold;
 }

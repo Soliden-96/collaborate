@@ -13,7 +13,7 @@ button:hover {
 .back-button {
     position:absolute;
     top:10px;
-    left:5vw;
+    left:10%;
     border-radius:50%;
     border:none;
     height:40px;
@@ -22,6 +22,12 @@ button:hover {
     background-color: white;
     color:black;
     border:solid 2px rgb(117, 253, 117)
+}
+
+@media(max-width:580px) {
+    .back-button {
+        left:2%;
+    }
 }
 
 .back-button:hover {
@@ -41,7 +47,8 @@ button:hover {
 
 @media (max-width:390px) {
     .menu-bar {
-       gap:5rem;
+       column-gap: 5rem; 
+       margin-top:80px;
     }
 }
 

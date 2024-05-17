@@ -211,8 +211,8 @@ function FileUploadArea({projectId, addFile}) {
 
     return (
         <>
-        <div>
-            <button className="new-file-btn" onClick={() => setShowFileModal(!showFileModal)}>New File</button>
+        <div className="new-file-btn-div">
+            <button className="new-file-btn" onClick={() => setShowFileModal(!showFileModal)}>Add File +</button>
         </div>
         {showFileModal &&
         <div className="upload-modal">

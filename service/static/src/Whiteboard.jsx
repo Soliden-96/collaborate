@@ -170,7 +170,7 @@ function Whiteboard({projectId, userId, selectedWhiteboard, selectedTitle}) {
     }
 
     if (loading) {
-        return <h2>Loading...</h2>
+        return <div className="loading-div">Loading...</div>
     }
 
     return (

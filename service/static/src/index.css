@@ -1,3 +1,20 @@
+body {
+    background-image: url('dist/app-pic.jpg');
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center; 
+    background-repeat: no-repeat; 
+}
+
+button {
+    cursor:pointer;
+}
+
+span {
+    font-weight:bold;
+    font-size: 20px;
+}
+
 .profile-page {
     text-align: center;
     font-family:Calibri;
@@ -11,23 +28,57 @@
     margin-left:20px;
 }
 
+.submit-btn {
+    color:red;
+    background-color: whitesmoke;
+    border:none;
+    border-radius:7px;
+    box-shadow : 0 2px 3px red;
+}
+
+.error-message {
+    color:red;
+    font-weight:bold;
+}
+
+.dropdown-btn {
+    margin-top:10px;
+    margin-bottom:10px;
+    font-weight:bold;
+    background:none;
+    border:none;
+    font-size:14px;
+}
+
 .new-project-form {
     text-align: center;
+    display:none;
+    background-color:rgb(255,255,255,0.8);
+    border: none;
+    border-radius:7px;
+    max-width:600px;
+    max-height:450px;
+    margin:0 auto;
+    padding-bottom:10px;
 }
 
 .new-project-element {
-    margin:0 auto;
     display:block;
+    background-color:rgb(255,255,255,0.0);
 }
 
 #new-project-title {
-    width:300px;
+    width:100%;
+    border:none;
+    outline:none;
 }
 
 #new-project-textarea {
     margin-top:15px;
-    height: 200px;
-    width: 400px;
+    height: 300px;
+    width:100%;
+    border:none;
+    outline:none;
 }
 
 #new-project-textarea::-webkit-scrollbar {
@@ -46,7 +97,15 @@
 }
 
 #new-project-button {
-    margin-top:15px;
+    margin:15px auto;
+    cursor:pointer;
+    background-color: rgba(255, 255, 255, 0.0);
+    box-shadow : 0 4px 6px rgb(63, 63, 63);
+    border:none;
+    padding:2px;
+    border-radius:7px;
+    font-weight:bold;
+    
 }
 
 #manage-projects {
@@ -115,31 +174,35 @@
     margin-bottom: 4px;
     border-radius: 100%;
     border: none;
-    height: 30px;
-    width: 30px;
+    height: 25px;
+    width: 25px;
     cursor: pointer;
 }
 
 .accept-btn {
-    background-color: #3ed63e;
-    color: white;
+    background-color:  white;
+    color:#3ed63e;
+    box-shadow : 0 4px 6px #3ed63e;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .deny-btn {
-    background-color: #ff4d4d;
-    color: white;
+    background-color:white;
+    color:  #ff4d4d;
+    box-shadow : 0 4px 6px #ff4d4d;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .accept-btn:hover {
     background-color: #72f772;
+    color:white;
 }
 
 .deny-btn:hover {
     background-color: #ff6666;
+    color:white;
 }
 
 .project-title-div {

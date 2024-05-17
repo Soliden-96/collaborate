@@ -14,14 +14,17 @@
             <h3 class="top-of-page">Welcome, {{ request.user.username }} !</h3>  
             <form class="top-of-page" action="/logout">
                 {% csrf_token %}
-                <button type="submit">Logout</button>
-            </form>     
+                <button class="submit-btn" type="submit">Logout</button>
+            </form>
+            <div class="new-project-dropdown">
+                <button class="dropdown-btn">New Project <span>+</span></button>
+            </div>   
             <div class="new-project-form">
-                {% if message %} {{ message }} {% endif %}
+                {% if message %} <p class="error-message">{{ message }}</p> {% endif %}
                 <form action="{% url 'create_project' %}" method="POST">
                     {% csrf_token %}
-                    <input id="new-project-title" class="new-project-element" type="text" name="title" placeholder="Project title" />
-                    <textarea id="new-project-textarea" class="new-project-element" name="description" placeholder="Provide a brief description of the project, maximum 512 characters"></textarea>
+                    <input id="new-project-title" class="new-project-element" type="text" name="title" maxlength="64" placeholder="Project title" />
+                    <textarea id="new-project-textarea" class="new-project-element" name="description" maxlength="512" placeholder="Provide a brief description of the project, max 512 characters"></textarea>
                     <button id="new-project-button" class="new-project-element" type="submit">Create Project</button>
                 </form>
             </div>
@@ -53,5 +56,19 @@
                 </div>
             </div>
         </div>
+        <script>
+            document.addEventListener('DOMContentLoaded',() => {
+                const dropdownBtn = document.querySelector('.dropdown-btn');
+                const newProjectForm = document.querySelector('.new-project-form');
+
+                dropdownBtn.addEventListener('click',() => {
+                    if (!newProjectForm.style.display || newProjectForm.style.display === 'none') {
+                        newProjectForm.style.display = 'block';
+                    } else {
+                        newProjectForm.style.display = 'none';  
+                    } 
+                });
+            });
+        </script>    
     </body>
 </html>

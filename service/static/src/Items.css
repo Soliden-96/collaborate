@@ -7,6 +7,17 @@
     margin-bottom:15px;
 }
 
+.create-item-btn {
+    cursor:pointer;
+    background-color: rgba(255, 255, 255, 0.5);
+    box-shadow : 0 4px 6px rgb(63, 63, 63); /* Add a subtle shadow */
+    color:rgb(63,63,63);
+    border:none;
+    padding:2px;
+    border-radius:7px;
+    font-weight:bold;
+}
+
 .new-item-modal {
     position:fixed;
     top:50%;
@@ -75,34 +86,46 @@
     margin-left:10px;
     margin-right: 10px;
     margin-bottom:4px;
-    border-radius:8px;
-    border: none;
+    border-radius:7px;
     height:30px;
     width:30px;
 }
 
 .confirm-item-button {
-    background-color:  #3ed63e;
-    color: white;
-    font-weight:bold;
-    font-size:14px;
+    background-color:  white;
+    color:#3ed63e;
+    border:1px solid #3ed63e;
+    box-shadow : 0 4px 6px #3ed63e;
+    font-weight: bold;
+    font-size: 12px;
 }
 
 .confirm-item-button:hover {
     background-color: #72f772;
+    color:white;
     cursor: pointer;
 }
 
 .cancel-item-button {
-    background-color: #ff4d4d;
-    color:white;
+    background-color:white;
+    border:1px solid #ff4d4d;
+    color:  #ff4d4d;
+    box-shadow : 0 4px 6px #ff4d4d;
     font-weight: bold;
-    font-size:14px;
+    font-size: 12px;
 }
-
+ 
 .cancel-item-button:hover {
     background-color: #ff6666;
+    color:white;
     cursor: pointer;
+}
+
+.loading-div {
+    position:absolute ;
+    left:50%;
+    right:50%;
+    transform:translate(-50%,-50%)
 }
 
 .items {
@@ -114,6 +137,14 @@
     padding-left: 5vh;
     padding-top:10px;
     padding-bottom:10px;
+}
+
+@media(max-width:500px) {
+    .items {
+        width:96%;
+        margin-left:1%;
+        margin-right:1%;
+    }
 }
 
 .item {
