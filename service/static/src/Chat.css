@@ -38,10 +38,10 @@
     width:400px;
     height:400px;
     z-index: 9999;
-    border: 1px solid rgb(130, 130, 130); /* Slight border */
+    border: 1px solid rgb(130, 130, 130); 
     border-radius:7px;
     padding:5px;
-    background-color: rgba(245, 246, 238, 0.9); /* Slight yellow background */
+    background-color: rgba(245, 246, 238, 0.9); 
     resize: both;
 }
 

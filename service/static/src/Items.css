@@ -10,7 +10,7 @@
 .create-item-btn {
     cursor:pointer;
     background-color: rgba(255, 255, 255, 0.5);
-    box-shadow : 0 4px 6px rgb(63, 63, 63); /* Add a subtle shadow */
+    box-shadow : 0 4px 6px rgb(63, 63, 63);
     color:rgb(63,63,63);
     border:none;
     padding:2px;
@@ -169,7 +169,7 @@
 .delete-item {
     position:relative;
     float:right;
-    background-color: #ff6666; /* Delete button color */
+    background-color: #ff6666; 
     color: white;
     border: none;
     border-radius: 4px;
@@ -200,7 +200,7 @@
 
 .comment {
     border: none;
-    border-top: 1px solid #ccc; /* Adjust the color to your preference */
+    border-top: 1px solid #ccc; 
     margin-top: 10px;
     margin-right:6vh;
     padding-top:4px;
@@ -218,7 +218,7 @@
 .delete-comment {
     position:relative;
     float:right;
-    background:none; /* Delete button color */
+    background:none; 
     color: red;
     border: none;
     border-radius: 4px;

@@ -30,7 +30,7 @@ I believe that my project meets the distinctiveness and complexity requirements 
 
 ## Files overview
 
-Collaborate is the project's directory, which contains the main settings.py file.
+Collaborate is the project's directory, which contains the main settings.py file, I added asgi.py which provides setup for django-channels.
 
 The node_modules folder contains packages necessary for the frontend.
 

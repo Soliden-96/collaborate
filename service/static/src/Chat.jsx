@@ -56,9 +56,9 @@ function ChatBox({ projectId, currentUsername }) {
                     const height = chatLogElement.scrollHeight;
                     chatLogElement.scrollTop = height; 
                 },0);
+            
             } else {
-            // Functional version is better for asynchronous environment, instead of  
-            // updating like setChatLog(nextChatLog)
+
             setChatLog(chatLog => [
                 ...chatLog, 
                 (
@@ -82,7 +82,6 @@ function ChatBox({ projectId, currentUsername }) {
         
         chatSocket.onerror = function (event) {
             console.error('Chat socket error:', event);
-            // Update state or perform actions as needed
          };
          
         

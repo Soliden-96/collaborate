@@ -14,7 +14,7 @@
 .new-note-button {
     cursor:pointer;
     background-color: rgba(255, 255, 255, 0.5);
-    box-shadow : 0 4px 6px rgb(63, 63, 63); /* Add a subtle shadow */
+    box-shadow : 0 4px 6px rgb(63, 63, 63); 
     color:rgb(63,63,63);
     border:none;
     padding:2px;
@@ -32,11 +32,11 @@
 }
 
 .note {
-    background-color: #f2ffbc; /* Post-it color */
+    background-color: #f2ffbc; 
     padding: 20px;
     border-radius: 5px;
     border: 1px solid rgb(0, 0, 0);
-    box-shadow : 0 4px 6px rgb(63, 63, 63); /* Add a subtle shadow */
+    box-shadow : 0 4px 6px rgb(63, 63, 63); 
     width:15rem;
     min-height:10rem;
     max-height:16rem;
@@ -77,7 +77,7 @@
 .edit-button {
     position:relative;
     float:right;
-    background-color: #cad7ff; /* Delete button color */
+    background-color: #cad7ff; 
     color:black;
     border: none;
     border-radius: 4px;
@@ -96,7 +96,7 @@
 .delete-note {
     position:relative;
     float:right;
-    background-color: #ff6666; /* Delete button color */
+    background-color: #ff6666; 
     color: white;
     border: none;
     border-radius: 4px;
@@ -108,7 +108,7 @@
 }
   
 .delete-note:hover {
-    background-color: #ff4d4d; /* Change color on hover */
+    background-color: #ff4d4d; 
 }
 
 .new-note-button-div {
@@ -135,7 +135,7 @@
     background-color: #f0ffb2;
     border:none;
     flex: 1; /* Take up remaining space */
-    margin-bottom: 10px; /* Some spacing between textarea and buttons */
+    margin-bottom: 10px; 
     width: 400px;
     max-width: 100%;
     overflow-y: scroll;

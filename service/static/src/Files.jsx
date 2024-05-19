@@ -4,7 +4,6 @@ import ConfirmationWindow from './ConfirmationWindow.jsx';
 import MessageModal from './MessageModal.jsx'
 import './Files.css';
 
-// For real-time files need to use Base64 encoding, and decoding on the backend
 
 export default function FileRepo({projectId, currentUsername, isAdmin}) {
     const [files, setFiles] = useState([]);
@@ -58,7 +57,7 @@ export default function FileRepo({projectId, currentUsername, isAdmin}) {
 
 function Files({projectId, files, loadFiles, currentUsername, handleDeleteFile, isAdmin}) {
     
-    // Security to ask for including project id in url
+    
     useEffect(() => {
         fetch(`/get_project_files/${projectId}`)
         .then(response => response.json())
@@ -176,8 +175,6 @@ function FileUploadArea({projectId, addFile}) {
         formData.append('project_id',projectId);
         formData.append('file_extension',fileExtension);
 
-        // line to inspect
-        console.log(Object.fromEntries(formData.entries()));
         fetch('/upload_file',{
             method:'POST',
             headers:{

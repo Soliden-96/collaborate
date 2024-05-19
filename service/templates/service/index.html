@@ -8,13 +8,16 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Collaborate App</title>
         <link href="{% static 'src/index.css' %}" rel="stylesheet" />
+        <link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+        <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+        <link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css">
     </head>
     <body>
         <div class="profile-page">
             <h3 class="top-of-page">Welcome, {{ request.user.username }} !</h3>  
             <form class="top-of-page" action="/logout">
                 {% csrf_token %}
-                <button class="submit-btn" type="submit">Logout</button>
+                <button class="submit-btn" type="submit"><i class="fa-solid fa-right-from-bracket"></i></button>
             </form>
             <div class="new-project-dropdown">
                 <button class="dropdown-btn">New Project <span>+</span></button>

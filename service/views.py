@@ -22,7 +22,7 @@ def index(request):
     
     return render(request, "service/index.html", {"invitations": invitations, "projects": projects})
 
-# Accessing to the website directly from the urlbar does not set the CSRF Cookie
+
 @csrf_exempt
 def login_view(request):
     if request.method == "POST":
@@ -77,7 +77,7 @@ def create_project(request):
     if request.method == "POST":
         title = request.POST.get('title')
         description = request.POST.get('description')
-        # Should try to make this dynamic
+        
         if not title.strip() or not description.strip():
             return render(request, "service/index.html", {"message": "Title and description are required"})
 
@@ -301,7 +301,7 @@ def upload_file(request):
  
     return JsonResponse({"file":file_to_store.serialize()}, status=200)
 
-# Check if users on project is todo
+
 @login_required
 def get_project_files(request,projectId):
     if request.method != "GET":
@@ -328,10 +328,10 @@ def delete_file(request):
     file_id = data.get('file_id')
     file_to_delete = File.objects.get(pk=file_id)
     file_to_delete.delete()
-    
+     
     return JsonResponse({"success":True}, status=200)
 
-# For production better check where to store files... github gives warnings also in dev mode
+
 @login_required
 def download_file(request,project_id,file_id):
     if ProjectMembership.objects.get(user_id=request.user.id, project_id=project_id):

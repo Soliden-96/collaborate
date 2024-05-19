@@ -36,7 +36,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         message = text_data_json.get('message')
         timestamp = timezone.now()
-        # Use testuser in case of testing
+        # Use TestUser in case of testing
         sender = self.scope["user"]
 
         chat_message = ChatMessage(

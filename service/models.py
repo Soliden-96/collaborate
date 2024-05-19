@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+import os
 
 # Create your models here.
 
@@ -115,9 +116,19 @@ class File(models.Model):
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="uploaded_files",null=True)
     file_type = models.CharField(max_length=64, null=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="project_files")
-    # NEED TO CHECK FILE STORAGE FOR DEPLOYMENT
+    # NEED TO CHECK FILE STORAGE FOR PRODUCTION
     file = models.FileField(upload_to="filerepo")
     timestamp = models.DateTimeField(auto_now_add=True)
+
+    def delete(self, *args, **kwargs):
+        # Delete the file from storage
+        if self.file:
+            storage_path = self.file.path
+            if os.path.exists(storage_path):
+                os.remove(storage_path)
+        
+        # Call the superclass's delete method to delete object from database
+        super().delete(*args, **kwargs)
 
     def serialize(self):
         return {

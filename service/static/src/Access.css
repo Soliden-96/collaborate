@@ -62,7 +62,7 @@ button {
 
 .toggled {
   transform: rotate(90deg);
-  transform-origin: center; /* Set transform-origin to center */
+  transform-origin: center; 
 }
 
 .access-options {
