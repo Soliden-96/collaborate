@@ -4,18 +4,46 @@ export default function DescriptionModal() {
     return (
         <div className="description-modal">
             <p>
-            Sure, here's a random text for you:
-
-In the heart of the bustling city, amidst the cacophony of honking horns and hurried footsteps, there exists a hidden oasis of tranquility. Tucked away from the chaos, a small park emerges like a green gemstone in the concrete jungle. Trees stretch their branches towards the sky, their leaves whispering secrets to the wind. Birds chirp melodies of joy as they flit from branch to branch, their colorful feathers a vibrant contrast against the dull gray of the buildings.
-
-In this serene sanctuary, time seems to slow down, allowing weary souls to find solace amidst the hustle and bustle of urban life. Couples stroll hand in hand, lost in each other's gaze, while children giggle and play, their laughter echoing through the air like the tinkling of bells. Elderly men and women sit on weathered benches, reminiscing about days gone by, their wrinkled faces creased with smiles as they recall fond memories.
-
-As the sun dips below the horizon, casting a warm glow over the park, the atmosphere shifts, becoming imbued with a sense of magic and mystery. Shadows dance across the grass, while fireflies twinkle like stars in the gathering dusk. The air is alive with the scent of blooming flowers and freshly cut grass, a heady perfume that intoxicates the senses.
-
-In this moment, worries and cares melt away, replaced by a profound sense of peace and contentment. Time seems to stand still as the city fades into the background, leaving only the gentle rustle of leaves and the soft murmur of conversation. Here, in this tranquil oasis, the chaos of the outside world is nothing more than a distant memory, and all that matters is the here and now.
-
-And so, as the night unfolds and the stars begin to shimmer overhead, the park remains a beacon of serenity in a world filled with noise and confusion. For those who seek it out, it offers a refuge from the storms of life, a place where the soul can find rest and renewal amidst the beauty of nature.
+                The purpose of this website is to create an environment where people can collaborate on projects in a quick and intuitive way.
             </p>
+            <p>
+                Once you register and log in you will find yourself on the main page where you can select a project on which they are already working, 
+                create a new project, or respond to invitations to other projects.
+            </p>
+            <p>
+                Inside a project users can switch tools to use, the "home page" tool <i className="fa-solid fa-house"></i> is selected as default.
+            </p>
+            <p>
+                In the home page of a project you can see if you are an administrator and who is working on the project.
+            </p>
+            <p>
+                Administrators have a golden icon next to the project title <i className="fa-solid fa-user-tie gold-user"></i> and are empowered to close projects, 
+                remove participants from projects, edit or remove content, and change administrator status clicking on the user's icon
+                <i className="fa-solid fa-user-tie"></i>  next to their name in the participants list. The icon is grey when the user is not an administrator, 
+                and golden when the user is an administrator.
+            </p>
+            <p>
+                The other tools are:
+            </p>
+            <p>
+                "Chat" <i className="fa-solid fa-comment-dots"></i>: A chat for the participants of the project.
+            </p>
+            <p>
+                "Notes" tool <i className="fa-solid fa-note-sticky"></i> : Quick notes can be posted and edited on this page.
+            </p>
+            <p>
+                "Whiteboards" tool <i className="fa-solid fa-chalkboard-user"></i>: Enables real-time collaborative whiteboards integrating 
+                <a href="https://excalidraw.com/">Excalidraw</a> and provides server-side functionality so that users can manage multiple whiteboards 
+                which are automatically saved to database. 
+                To use the library functionality of Excalidraw it is recommended to first download the library and then browse your local memory to add the elements. 
+            </p>
+            <p>
+                "Items" tool <i className="fa-solid fa-list"></i>: Here users can post an item and comment on it following a particular thread.
+            </p>
+            <p>
+                "Files" tool <i className="fa-solid fa-folder-open"></i>: Users can share and download files using this tool.
+            </p>
+
         </div>
     )
 }

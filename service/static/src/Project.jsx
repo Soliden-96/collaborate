@@ -14,11 +14,11 @@ const userId = parseInt(document.querySelector('#project-info').dataset.user);
 const currentUsername = document.querySelector('#project-info').dataset.username;
 const isAdmin = (document.querySelector('#project-info').dataset.is_admin) ==="True";
 const tools = {
-        'Invite':{'name':'Invite','component':Invite},
-        'Items':{'name':'Items','component':Items},
-        'FileRepo':{'name':'FileRepo','component':FileRepo},
-        'Notes':{'name':'Notes','component':Notes},
-        'WhiteboardMenu':{'name':'WhiteboardMenu','component':WhiteboardMenu}
+        'Notes':{'name':'Notes','component':Notes, 'icon':<i className="fa-solid fa-note-sticky"></i>},
+        'WhiteboardMenu':{'name':'WhiteboardMenu','component':WhiteboardMenu, 'icon':<i className="fa-solid fa-chalkboard-user"></i>},
+        'Invite':{'name':'Invite','component':Invite, 'icon':<i className="fa-solid fa-house"></i>},
+        'Items':{'name':'Items','component':Items, 'icon':<i className="fa-solid fa-list"></i>},
+        'FileRepo':{'name':'FileRepo','component':FileRepo, 'icon':<i className="fa-solid fa-folder-open"></i>}, 
     }
 
 
@@ -48,7 +48,7 @@ export default function Project({}) {
                         className={selectedTool===tools[tool].name ? 'selected-tool':'not-selected'}
                         onClick={() => setSelectedTool(tools[tool].name)}
                     >
-                        {tools[tool].name}
+                        {tools[tool].icon}
                     </button>
                 ))} 
             </div>

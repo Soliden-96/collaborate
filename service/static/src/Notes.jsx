@@ -171,7 +171,6 @@ export default function Notes({projectId, currentUsername, isAdmin}) {
     return (
         <>
         {message && <MessageModal message={message} resetMessage={setMessage} />}
-        <div style={{textAlign:"center"}}>{notesNumberRef.current}</div>
         <div className="new-note-button-div">
             <button className="new-note-button" onClick={() => setShowNewNoteModal(!showNewNoteModal)}>Add Note +</button>
         </div>
