@@ -19,7 +19,7 @@ export function Access() {
   return ( 
     <>
     <div className="app-introduction">
-      <h2 className="app-title">App title</h2>
+      <h1 className="app-title">Collab - Space</h1>
       <div >
         <button className="app-description-toggle" onClick={() => setDescriptionToggled(!descriptionToggled)}>Quick Guide</button>
       </div>

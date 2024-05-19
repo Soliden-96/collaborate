@@ -106,7 +106,7 @@ DATABASES = {
         },
         'USER': 'collaborate_dengi',
         'PASSWORD': 'bengidengi',
-        'HOST': 'db'
+        'HOST': 'db',
         'PORT': '5432',
     },
 }

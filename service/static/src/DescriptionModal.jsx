@@ -32,8 +32,8 @@ export default function DescriptionModal() {
                 "Notes" tool <i className="fa-solid fa-note-sticky"></i> : Quick notes can be posted and edited on this page.
             </p>
             <p>
-                "Whiteboards" tool <i className="fa-solid fa-chalkboard-user"></i>: Enables real-time collaborative whiteboards integrating 
-                <a href="https://excalidraw.com/">Excalidraw</a> and provides server-side functionality so that users can manage multiple whiteboards 
+                "Whiteboards" tool <i className="fa-solid fa-chalkboard-user"></i>: Enables real-time collaborative whiteboards
+                 integrating <a href="https://excalidraw.com/"> Excalidraw </a> and provides server-side functionality so that users can manage multiple whiteboards 
                 which are automatically saved to database. 
                 To use the library functionality of Excalidraw it is recommended to first download the library and then browse your local memory to add the elements. 
             </p>
