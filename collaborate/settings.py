@@ -106,7 +106,7 @@ DATABASES = {
         },
         'USER': 'collaborate_dengi',
         'PASSWORD': 'bengidengi',
-        'HOST': os.getenv('DATABASE_HOST', 'db'),  # Use 'db' for Docker Compose and 'localhost' for GitHub Actions  
+        'HOST': 'db'
         'PORT': '5432',
     },
 }
