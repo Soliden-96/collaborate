@@ -25,7 +25,7 @@ I believe that my project meets the distinctiveness and complexity requirements 
     - It enables realtime functionality using django channels.
     - It uses exstensively React, which was only briefly explained throughout the course.
     - Connects 4 services: Frontend, Backend, Postgres, Redis using Docker and the modern build tool Vite.
-    - Uses covering indexes on the postgres database and caches Django's middleware and sessions with the same redis service that powers channels/websockets groups.
+    - Uses covering indexes on the postgres database to optimize performance
      
 
 ## Files overview
