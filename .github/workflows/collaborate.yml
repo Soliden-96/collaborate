@@ -10,7 +10,7 @@ jobs:
       run: echo "DJANGO_SUPERUSER_PASSWORD=yes" >> $GITHUB_ENV
     - name: Install Dependencies
       run: |
-        pip install django
+        pip install -r requirements.txt
     - name: Run Tests
       run: |
         python3 manage.py test
