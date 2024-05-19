@@ -5,21 +5,6 @@ jobs:
   test_project:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_DB: collaborate_app_db
-          POSTGRES_USER: collaborate_dengi
-          POSTGRES_PASSWORD: bengidengi
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
     - uses: actions/checkout@v3
     
@@ -33,20 +18,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Wait for PostgreSQL to be ready
-      run: |
-        while ! pg_isready -h localhost -p 5432; do
-          sleep 1
-        done
-
-    - name: Run migrations
-      run: |
-        python manage.py migrate
 
     - name: Run tests
       run: |
         python manage.py test
-
-    env:
-      DATABASE_URL: postgres://collaborate_dengi:bengidengi@localhost:5432/collaborate_app_db
-      DJANGO_SUPERUSER_PASSWORD: yes

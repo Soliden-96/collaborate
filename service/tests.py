@@ -18,7 +18,7 @@ class ChatTests(ChannelsLiveServerTestCase):
         self.user = User.objects.create_user(username='Testuser', password='password')
         self.client.login(username='Testuser', password='password')
 
-    def tearDown(self):
+    def tearDown(self): 
         self.client.logout()
         User.objects.all().delete()
 
