@@ -100,7 +100,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'collaborate_app_db',
-        'TEST':{
+        'TEST':{ 
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': str(BASE_DIR / 'db_test.sqlite3')
         },

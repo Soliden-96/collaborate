@@ -5,6 +5,16 @@ jobs:
   test_project:
     runs-on: ubuntu-latest
 
+    services:
+      db:
+        image: postgres
+        env:
+          POSTGRES_DB: collaborate_app_db
+          POSTGRES_USER: collaborate_dengi
+          POSTGRES_PASSWORD: bengidengi
+        ports:
+          - 5432:5432
+
     steps:
     - uses: actions/checkout@v3
     
